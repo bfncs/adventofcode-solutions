@@ -89,8 +89,9 @@ public class Day2 {
 
 
     public final boolean testSecondPolicy() {
-      return password.charAt(rule.range.lower() - 1) == rule.requiredChar
-          && password.charAt(rule.range.upper() - 1) != rule.requiredChar;
+      final boolean firstMatches = password.charAt(rule.range.lower() - 1) == rule.requiredChar;
+      final boolean secondMatches = password.charAt(rule.range.upper() - 1) == rule.requiredChar;
+      return (firstMatches && !secondMatches) || (!firstMatches && secondMatches);
     }
 
   }
