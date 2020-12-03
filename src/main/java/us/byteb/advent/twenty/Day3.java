@@ -1,5 +1,7 @@
 package us.byteb.advent.twenty;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,27 +14,36 @@ import static java.lang.Math.toIntExact;
 public class Day3 {
 
   public static void main(String[] args) {
-    final String input = readFileFromResources("day3/input.txt");
+    final Field field = Field.of(readFileFromResources("day3/input.txt"));
 
-    final Field field = Field.of(input);
+    System.out.println("Result first part: " + calcNumTrees(field, 3, 1));
+
+    System.out.println("Result second part: " + List.of(
+        Pair.of(1, 1),
+        Pair.of(3, 1),
+        Pair.of(5, 1),
+        Pair.of(7, 1),
+        Pair.of(1, 2)
+    ).parallelStream().mapToLong(entry -> calcNumTrees(field, entry.getLeft(), entry.getRight())).reduce((left, right) -> left * right).getAsLong());
+
+  }
+
+  private static long calcNumTrees(final Field field, final int stepX, final int stepY) {
     Position position = new Position(0, 0);
     long counter = field.getContent(position).get() == '#' ? 1 : 0;
 
     while (true) {
-      position = position.move(3, 1);
+      position = position.move(stepX, stepY);
       final Optional<Character> content = field.getContent(position);
       if (content.isEmpty()) {
         break;
       }
 
-      System.out.println("pos " + position + ": " + content);
-
       if (content.get() == '#') {
         counter += 1;
       }
     }
-
-    System.out.println("Result: " + counter);
+    return counter;
   }
 
 
@@ -65,11 +76,11 @@ public class Day3 {
     }
 
     long getWidth() {
-      return  data.get(0).length();
+      return data.get(0).length();
     }
 
     long getHeight() {
-      return  data.size();
+      return data.size();
     }
 
     Optional<Character> getContent(final Position position) {
