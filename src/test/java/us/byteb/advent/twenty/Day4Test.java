@@ -14,7 +14,7 @@ class Day4Test {
   void part1Example() throws IOException {
     final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/example.txt"));
     assertEquals(4, parsedInput.size());
-    assertEquals(2, (long) filterValid(parsedInput, Day4::hasRequiredFields).size());
+    assertEquals(2, filterValid(parsedInput, Day4::hasRequiredFields).size());
   }
 
   @Test

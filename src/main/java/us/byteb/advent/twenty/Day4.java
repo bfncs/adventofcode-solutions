@@ -32,8 +32,8 @@ public class Day4 {
     public static void main(String[] args) throws IOException {
         final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/input.txt"));
         System.out.println(
-                "Part 1: " + (long) filterValid(parsedInput, Day4::hasRequiredFields).size());
-        System.out.println("Part 2: " + (long) filterValid(parsedInput, Day4::hasValidFields).size());
+                "Part 1: " + filterValid(parsedInput, Day4::hasRequiredFields).size());
+        System.out.println("Part 2: " + filterValid(parsedInput, Day4::hasValidFields).size());
     }
 
   private static Predicate<String> rangeInclusive(final int min, final int max) {
