@@ -3,40 +3,48 @@ package us.byteb.advent.twenty;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Day4 {
 
-  public static final List<String> REQUIRED_FIELDS =
-      List.of("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid");
-
-  public static void main(String[] args) throws IOException {
-    final String input = readFileFromResources("day4/input.txt");
-
-    final List<List<String>> parsedInput = parseInput(input);
-    System.out.println(countValid(parsedInput));
-  }
-
-  static long countValid(final List<List<String>> parsedInput) {
-    return parsedInput.parallelStream()
-        .filter(
-            item -> {
-              for (final String field : REQUIRED_FIELDS) {
-                if (!item.stream().anyMatch(value -> value.startsWith(field))) {
-                  return false;
+  private static final Map<String, Predicate<String>> RULES =
+      Map.of(
+          "byr", rangeInclusive(1920, 2002),
+          "iyr", rangeInclusive(2010, 2020),
+          "eyr", rangeInclusive(2020, 2030),
+          "hgt",
+              s -> {
+                if (s.endsWith("cm")) {
+                  return rangeInclusive(150, 193).test(s.substring(0, s.length() - 2));
                 }
-              }
-              return true;
-            })
-        .count();
+                if (s.endsWith("in")) {
+                  return rangeInclusive(59, 76).test(s.substring(0, s.length() - 2));
+                }
+                return false;
+              },
+          "hcl", s -> s.matches("^#[0-9a-f]{6}$"),
+          "ecl", s -> List.of("amb", "blu", "brn", "gry", "grn", "hzl", "oth").contains(s),
+          "pid", s -> s.matches("^[0-9]{9}"));
+
+    public static void main(String[] args) throws IOException {
+        final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/input.txt"));
+        System.out.println(
+                "Part 1: " + (long) filterValid(parsedInput, Day4::hasRequiredFields).size());
+        System.out.println("Part 2: " + (long) filterValid(parsedInput, Day4::hasValidFields).size());
+    }
+
+  private static Predicate<String> rangeInclusive(final int min, final int max) {
+    return s -> {
+      final int year = Integer.parseInt(s);
+      return year >= min && year <= max;
+    };
   }
 
-  static List<List<String>> parseInput(final String input) {
-    final List<List<String>> initialState = new ArrayList<>();
+  static List<List<Field>> parseInput(final String input) {
+    final List<List<Field>> initialState = new ArrayList<>();
     initialState.add(new ArrayList<>());
 
     return input
@@ -47,13 +55,12 @@ public class Day4 {
               if (line.strip().length() == 0) {
                 acc.add(new ArrayList<>());
               } else {
-                acc.get(acc.size() - 1).addAll(Arrays.asList(line.split("\\s+")));
+                acc.get(acc.size() - 1).addAll(parseFields(line));
               }
 
               return acc;
             },
-            (left, right) ->
-                Stream.concat(left.stream(), right.stream()).collect(Collectors.toList()));
+            Day4::merge);
   }
 
   static String readFileFromResources(final String fileName) throws IOException {
@@ -62,4 +69,49 @@ public class Day4 {
 
     return new String(Files.readAllBytes(file.toPath()));
   }
+
+  static List<List<Field>> filterValid(
+      final List<List<Field>> parsedInput, final Predicate<List<Field>> policy) {
+    return parsedInput.parallelStream().filter(policy).collect(Collectors.toList());
+  }
+
+  static boolean hasRequiredFields(final List<Field> item) {
+    for (final String fieldKey : RULES.keySet()) {
+      if (item.stream().noneMatch(candidate -> candidate.key().equals(fieldKey))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static boolean hasValidFields(final List<Field> item) {
+    for (final Map.Entry<String, Predicate<String>> rule : RULES.entrySet()) {
+      final Optional<Field> maybeField =
+          item.stream().filter(candidate -> candidate.key().equals(rule.getKey())).findFirst();
+      if (maybeField.isEmpty() || !rule.getValue().test(maybeField.get().value())) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static List<Field> parseFields(final String line) {
+    return Arrays.stream(line.split("\\s+"))
+        .map(
+            s -> {
+              final List<String> parts = Arrays.stream(s.split(":")).collect(Collectors.toList());
+              if (parts.size() != 2) {
+                throw new IllegalStateException("Illegal field: " + s);
+              }
+              return new Field(parts.get(0), parts.get(1));
+            })
+        .collect(Collectors.toList());
+  }
+
+  private static <T> List<T> merge(final Collection<T> left, final Collection<T> right) {
+    return Stream.concat(left.stream(), right.stream()).collect(Collectors.toList());
+  }
+
+  record Field(String key, String value) {}
 }
