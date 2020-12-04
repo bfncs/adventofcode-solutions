@@ -1,15 +1,12 @@
 package us.byteb.advent.twenty;
 
-import org.apache.commons.lang3.tuple.Pair;
+import static java.lang.Math.toIntExact;
+import static us.byteb.advent.twenty.Utils.readFileFromResources;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.lang.Math.toIntExact;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class Day3 {
 
@@ -18,14 +15,13 @@ public class Day3 {
 
     System.out.println("Result first part: " + calcNumTrees(field, 3, 1));
 
-    System.out.println("Result second part: " + List.of(
-        Pair.of(1, 1),
-        Pair.of(3, 1),
-        Pair.of(5, 1),
-        Pair.of(7, 1),
-        Pair.of(1, 2)
-    ).parallelStream().mapToLong(entry -> calcNumTrees(field, entry.getLeft(), entry.getRight())).reduce((left, right) -> left * right).getAsLong());
-
+    System.out.println(
+        "Result second part: "
+            + List.of(Pair.of(1, 1), Pair.of(3, 1), Pair.of(5, 1), Pair.of(7, 1), Pair.of(1, 2))
+                .parallelStream()
+                .mapToLong(entry -> calcNumTrees(field, entry.getLeft(), entry.getRight()))
+                .reduce((left, right) -> left * right)
+                .getAsLong());
   }
 
   private static long calcNumTrees(final Field field, final int stepX, final int stepY) {
@@ -44,18 +40,6 @@ public class Day3 {
       }
     }
     return counter;
-  }
-
-
-  private static String readFileFromResources(final String fileName) {
-    final ClassLoader classLoader = Day1.class.getClassLoader();
-    final File file = new File(classLoader.getResource(fileName).getFile());
-
-    try {
-      return new String(Files.readAllBytes(file.toPath()));
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to read file from resources: " + fileName, e);
-    }
   }
 
   static final record Position(long x, long y) {
@@ -88,8 +72,8 @@ public class Day3 {
         return Optional.empty();
       }
 
-      return Optional.of(data.get(toIntExact(position.y())).charAt(toIntExact(position.x() % getWidth())));
+      return Optional.of(
+          data.get(toIntExact(position.y())).charAt(toIntExact(position.x() % getWidth())));
     }
   }
-
 }

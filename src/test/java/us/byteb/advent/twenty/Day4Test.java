@@ -1,26 +1,29 @@
 package us.byteb.advent.twenty;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static us.byteb.advent.twenty.Day4.*;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.twenty.Day4.*;
+import org.junit.jupiter.api.Test;
 
 class Day4Test {
 
   @Test
   void part1Example() throws IOException {
-    final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/example.txt"));
+    final List<List<Field>> parsedInput =
+        parseInput(Utils.readFileFromResources("day4/example.txt"));
     assertEquals(4, parsedInput.size());
     assertEquals(2, filterValid(parsedInput, Day4::hasRequiredFields).size());
   }
 
   @Test
   void part2Examples() {
-    assertEquals(0, filterValid(parseInput(
-            """
+    assertEquals(
+        0,
+        filterValid(
+                parseInput(
+                    """
                     eyr:1972 cid:100
                     hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
 
@@ -34,9 +37,14 @@ class Day4Test {
                     hgt:59cm ecl:zzz
                     eyr:2038 hcl:74454a iyr:2023
                     pid:3556412378 byr:2007
-                                """), Day4::hasValidFields).size());
-    assertEquals(4, filterValid(parseInput(
-            """
+                                """),
+                Day4::hasValidFields)
+            .size());
+    assertEquals(
+        4,
+        filterValid(
+                parseInput(
+                    """
                     pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
                     hcl:#623a2f
 
@@ -49,6 +57,8 @@ class Day4Test {
                     eyr:2022
 
                     iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
-                                """), Day4::hasValidFields).size());
+                                """),
+                Day4::hasValidFields)
+            .size());
   }
 }

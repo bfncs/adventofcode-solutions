@@ -1,15 +1,14 @@
 package us.byteb.advent.twenty;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import us.byteb.advent.twenty.Day2.ValidationItem;
-
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day2Test {
 
@@ -26,9 +25,7 @@ class Day2Test {
       return Stream.of(
           Arguments.of("1-3 a: abcde", true),
           Arguments.of("1-3 b: cdefg", false),
-          Arguments.of("2-9 c: ccccccccc", false)
-      );
+          Arguments.of("2-9 c: ccccccccc", false));
     }
   }
-
 }

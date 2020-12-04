@@ -1,8 +1,7 @@
 package us.byteb.advent.twenty;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import static us.byteb.advent.twenty.Utils.readFileFromResources;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -29,12 +28,11 @@ public class Day4 {
           "ecl", s -> List.of("amb", "blu", "brn", "gry", "grn", "hzl", "oth").contains(s),
           "pid", s -> s.matches("^[0-9]{9}"));
 
-    public static void main(String[] args) throws IOException {
-        final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/input.txt"));
-        System.out.println(
-                "Part 1: " + filterValid(parsedInput, Day4::hasRequiredFields).size());
-        System.out.println("Part 2: " + filterValid(parsedInput, Day4::hasValidFields).size());
-    }
+  public static void main(String[] args) {
+    final List<List<Field>> parsedInput = parseInput(readFileFromResources("day4/input.txt"));
+    System.out.println("Part 1: " + filterValid(parsedInput, Day4::hasRequiredFields).size());
+    System.out.println("Part 2: " + filterValid(parsedInput, Day4::hasValidFields).size());
+  }
 
   private static Predicate<String> rangeInclusive(final int min, final int max) {
     return s -> {
@@ -61,13 +59,6 @@ public class Day4 {
               return acc;
             },
             Day4::merge);
-  }
-
-  static String readFileFromResources(final String fileName) throws IOException {
-    final ClassLoader classLoader = Day4.class.getClassLoader();
-    final File file = new File(classLoader.getResource(fileName).getFile());
-
-    return new String(Files.readAllBytes(file.toPath()));
   }
 
   static List<List<Field>> filterValid(

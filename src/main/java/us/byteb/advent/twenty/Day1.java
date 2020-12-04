@@ -1,8 +1,8 @@
 package us.byteb.advent.twenty;
 
-import java.io.File;
+import static us.byteb.advent.twenty.Utils.readFileFromResources;
+
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,12 +69,5 @@ public class Day1 {
     }
 
     throw new IllegalStateException("Solution not found");
-  }
-
-  private static String readFileFromResources(final String fileName) throws IOException {
-    final ClassLoader classLoader = Day1.class.getClassLoader();
-    final File file = new File(classLoader.getResource(fileName).getFile());
-
-    return new String(Files.readAllBytes(file.toPath()));
   }
 }
