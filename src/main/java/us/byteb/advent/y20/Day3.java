@@ -1,7 +1,7 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
 import static java.lang.Math.toIntExact;
-import static us.byteb.advent.twenty.Utils.readFileFromResources;
+import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class Day3 {
 
   public static void main(String[] args) {
-    final Field field = Field.of(readFileFromResources("day3/input.txt"));
+    final Field field = Field.of(readFileFromResources("y20/day3.txt"));
 
     System.out.println("Result first part: " + calcNumTrees(field, 3, 1));
 

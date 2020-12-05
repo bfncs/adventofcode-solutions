@@ -1,6 +1,6 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
-import static us.byteb.advent.twenty.Utils.readFileFromResources;
+import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class Day2 {
 
   public static void main(String[] args) throws Exception {
     final List<String> lines =
-        readFileFromResources("day2/input.txt").lines().collect(Collectors.toList());
+        readFileFromResources("y20/day2.txt").lines().collect(Collectors.toList());
 
     System.out.println("part1: " + partOne(lines));
     System.out.println("part2: " + partTwo(lines));

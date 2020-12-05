@@ -1,6 +1,6 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
-import static us.byteb.advent.twenty.Utils.readFileFromResources;
+import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Day1 {
 
   public static void main(String[] args) throws IOException {
-    final String input = readFileFromResources("day1/input.csv");
+    final String input = readFileFromResources("y20/day1.txt");
 
     System.out.println(partOne(input));
     System.out.println(partTwo(input));

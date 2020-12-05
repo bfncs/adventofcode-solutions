@@ -1,6 +1,6 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
-import static us.byteb.advent.twenty.Utils.readFileFromResources;
+import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -29,7 +29,7 @@ public class Day4 {
           "pid", s -> s.matches("^[0-9]{9}"));
 
   public static void main(String[] args) {
-    final List<Passport> parsedInput = parseInput(readFileFromResources("day4/input.txt"));
+    final List<Passport> parsedInput = parseInput(readFileFromResources("y20/day4.txt"));
     System.out.println("Part 1: " + filterValid(parsedInput, Day4::hasRequiredFields).size());
     System.out.println("Part 2: " + filterValid(parsedInput, Day4::hasValidFields).size());
   }

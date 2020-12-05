@@ -1,4 +1,4 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import us.byteb.advent.twenty.Day2.ValidationItem;
+import us.byteb.advent.y20.Day2.ValidationItem;
 
 class Day2Test {
 

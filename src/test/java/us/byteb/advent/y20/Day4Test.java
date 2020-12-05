@@ -1,16 +1,17 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.twenty.Day4.*;
+import static us.byteb.advent.y20.Day4.*;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import us.byteb.advent.Utils;
 
 class Day4Test {
 
   @Test
   void part1Example() {
-    final List<Passport> parsedInput = parseInput(Utils.readFileFromResources("day4/example.txt"));
+    final List<Passport> parsedInput = parseInput(Utils.readFileFromResources("day4-example.txt"));
     assertEquals(4, parsedInput.size());
     assertEquals(2, filterValid(parsedInput, Day4::hasRequiredFields).size());
   }

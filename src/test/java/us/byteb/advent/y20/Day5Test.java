@@ -1,4 +1,4 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
 import static org.junit.jupiter.api.Assertions.*;
 

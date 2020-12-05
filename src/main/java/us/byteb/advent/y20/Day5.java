@@ -1,13 +1,14 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent.y20;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import us.byteb.advent.Utils;
 
 public class Day5 {
 
   public static void main(String[] args) {
-    final String input = Utils.readFileFromResources("day5/input.txt");
+    final String input = Utils.readFileFromResources("y20/day5.txt");
 
     final List<Seat> seats = input.lines().map(Seat::of).sorted().collect(Collectors.toList());
 

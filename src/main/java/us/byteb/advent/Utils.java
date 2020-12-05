@@ -1,4 +1,4 @@
-package us.byteb.advent.twenty;
+package us.byteb.advent;
 
 import java.io.File;
 import java.nio.file.Files;
