@@ -53,9 +53,10 @@ public class Day4 {
               if (line.strip().length() == 0) {
                 acc.add(new Passport());
               } else {
-                  final int lastItemIndex = acc.size() - 1;
-                  final Passport merge = new Passport(merge(acc.get(lastItemIndex).fields(), parseFields(line)));
-                  acc.set(lastItemIndex, merge);
+                final int lastItemIndex = acc.size() - 1;
+                final Passport merge =
+                    new Passport(merge(acc.get(lastItemIndex).fields(), parseFields(line)));
+                acc.set(lastItemIndex, merge);
               }
 
               return acc;
@@ -64,7 +65,7 @@ public class Day4 {
   }
 
   static List<Passport> filterValid(
-          final List<Passport> passports, final Predicate<Passport> policy) {
+      final List<Passport> passports, final Predicate<Passport> policy) {
     return passports.parallelStream().filter(policy).collect(Collectors.toList());
   }
 
@@ -80,7 +81,9 @@ public class Day4 {
   static boolean hasValidFields(final Passport passport) {
     for (final Map.Entry<String, Predicate<String>> rule : RULES.entrySet()) {
       final Optional<Field> maybeField =
-          passport.fields().stream().filter(candidate -> candidate.key().equals(rule.getKey())).findFirst();
+          passport.fields().stream()
+              .filter(candidate -> candidate.key().equals(rule.getKey()))
+              .findFirst();
       if (maybeField.isEmpty() || !rule.getValue().test(maybeField.get().value())) {
         return false;
       }
@@ -107,9 +110,10 @@ public class Day4 {
   }
 
   record Passport(List<Field> fields) {
-      Passport() {
-          this(new ArrayList<>());
-      }
+    Passport() {
+      this(new ArrayList<>());
+    }
   }
+
   record Field(String key, String value) {}
 }
