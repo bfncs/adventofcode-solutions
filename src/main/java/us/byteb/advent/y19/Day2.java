@@ -12,12 +12,28 @@ public class Day2 {
     final List<Integer> input =
         Arrays.stream(Utils.readFileFromResources("y19/day2.txt").split(","))
             .map(Integer::parseInt)
-            .collect(Collectors.toList());
+            .collect(Collectors.toUnmodifiableList());
 
-    input.set(1, 12);
-    input.set(2, 2);
+    System.out.println("Part 1: " + execIntCode(input, 12, 2).get(0));
 
-    System.out.println("Part 1: " + execIntCode(input).get(0));
+    for (int noun = 0; noun <= 99; noun++) {
+      for (int verb = 0; verb <= 99; verb++) {
+        final List<Integer> result = execIntCode(input, noun, verb);
+        if (result.get(0) == 19690720) {
+          System.out.println("Part 2: " + (100 * noun + verb));
+          System.exit(0);
+        }
+      }
+    }
+  }
+
+  private static List<Integer> execIntCode(
+      final List<Integer> input, final int noun, final int verb) {
+    final List<Integer> memory = new ArrayList<>(input);
+    memory.set(1, noun);
+    memory.set(2, verb);
+
+    return execIntCode(memory);
   }
 
   static List<Integer> execIntCode(final List<Integer> input) {
