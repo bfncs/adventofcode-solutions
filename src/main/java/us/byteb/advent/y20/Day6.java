@@ -2,10 +2,8 @@ package us.byteb.advent.y20;
 
 import static us.byteb.advent.Utils.readFileFromResources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,8 +11,14 @@ public class Day6 {
 
   public static void main(String[] args) {
     final List<GroupAnswer> input = parse(readFileFromResources("y20/day6.txt"));
-    System.out.println(
-        "Part 1: " + input.stream().mapToLong(groupAnswer -> groupAnswer.uniqueAnswers().size()).sum());
+
+    System.out.println("Part 1: " + calcAnswer(input, g -> g.uniqueAnswers().size()));
+    System.out.println("Part 1: " + calcAnswer(input, g -> g.sharedAnswers().size()));
+  }
+
+  private static long calcAnswer(
+      final List<GroupAnswer> input, final Function<GroupAnswer, Integer> countGroupStrategy) {
+    return input.stream().mapToLong(countGroupStrategy::apply).sum();
   }
 
   static List<GroupAnswer> parse(final String input) {
@@ -49,6 +53,17 @@ public class Day6 {
 
     public Set<Character> uniqueAnswers() {
       return answers.stream().flatMap(p -> p.answers().stream()).collect(Collectors.toSet());
+    }
+
+    public Set<Character> sharedAnswers() {
+      return answers.stream()
+          .flatMap(p -> p.answers().stream())
+          .collect(Collectors.groupingBy(a -> a))
+          .entrySet()
+          .stream()
+          .filter(entry -> entry.getValue().size() == answers.size())
+          .map(Map.Entry::getKey)
+          .collect(Collectors.toSet());
     }
   }
 }

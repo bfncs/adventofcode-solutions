@@ -10,28 +10,28 @@ import us.byteb.advent.y20.Day6.PersonAnswer;
 
 class Day6Test {
 
+  private static final String EXAMPLE_INPUT =
+      """
+          abc
+
+          a
+          b
+          c
+
+          ab
+          ac
+
+          a
+          a
+          a
+          a
+
+          b
+          """;
+
   @Test
-  void parseExample() {
-    final String input =
-        """
-                abc
-
-                a
-                b
-                c
-
-                ab
-                ac
-
-                a
-                a
-                a
-                a
-
-                b
-                """;
-
-    final List<GroupAnswer> groupAnswers = parse(input);
+  void parseInput() {
+    final List<GroupAnswer> groupAnswers = parse(EXAMPLE_INPUT);
     assertEquals(
         List.of(
             GroupAnswer.of(PersonAnswer.of("abc")),
@@ -44,9 +44,23 @@ class Day6Test {
                 PersonAnswer.of("a")),
             GroupAnswer.of(PersonAnswer.of("b"))),
         groupAnswers);
+  }
 
+  @Test
+  void examplePart1() {
     assertEquals(
         11,
-        groupAnswers.stream().mapToLong(groupAnswer -> groupAnswer.uniqueAnswers().size()).sum());
+        parse(EXAMPLE_INPUT).stream()
+            .mapToLong(groupAnswer -> groupAnswer.uniqueAnswers().size())
+            .sum());
+  }
+
+  @Test
+  void examplePart2() {
+    assertEquals(
+        6,
+        parse(EXAMPLE_INPUT).stream()
+            .mapToLong(groupAnswer -> groupAnswer.sharedAnswers().size())
+            .sum());
   }
 }
