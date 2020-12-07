@@ -65,4 +65,20 @@ class Day7Test {
   void solveExamplePart1() {
     assertEquals(Set.of("bright white", "muted yellow", "dark orange", "light red"),Day7.findAllPossibleContainingBagColor("shiny gold", RULES));
   }
+
+  @Test
+  void solveExamplePart2() {
+    assertEquals(32, Day7.findNumBags("shiny gold", RULES));
+
+    assertEquals(126, Day7.findNumBags("shiny gold", Day7.parseRules("""
+        shiny gold bags contain 2 dark red bags.
+        dark red bags contain 2 dark orange bags.
+        dark orange bags contain 2 dark yellow bags.
+        dark yellow bags contain 2 dark green bags.
+        dark green bags contain 2 dark blue bags.
+        dark blue bags contain 2 dark violet bags.
+        dark violet bags contain no other bags.
+        """)));
+
+  }
 }

@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 public class Day7 {
 
   public static void main(String[] args) {
-    System.out.println("Part 1: " + findAllPossibleContainingBagColor("shiny gold", parseRules(Utils.readFileFromResources("y20/day7.txt"))).size());;
+    final Map<String, Map<String, Integer>> rules = parseRules(Utils.readFileFromResources("y20/day7.txt"));
+    System.out.println("Part 1: " + findAllPossibleContainingBagColor("shiny gold", rules).size());;
+    System.out.println("Part 2: " + findNumBags("shiny gold", rules));
+
   }
 
   static Map<String, Map<String, Integer>> parseRules(final String input) {
@@ -60,5 +63,13 @@ public class Day7 {
     }
 
     return consideredColors;
+  }
+
+  public static long findNumBags(final String bagColor, final Map<String, Map<String, Integer>> rules) {
+    final Map<String, Integer> bagRules = rules.get(bagColor);
+
+    return bagRules.entrySet().stream()
+        .mapToLong(entry -> entry.getValue() + (entry.getValue() * findNumBags(entry.getKey(), rules)))
+        .sum();
   }
 }
