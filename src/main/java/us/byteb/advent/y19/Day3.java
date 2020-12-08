@@ -116,10 +116,11 @@ public class Day3 {
     }
 
     static long fewestStepsToIntersection(final WirePath path1, final WirePath path2) {
-      return intersectionPoints(path1, path2)
-          .stream()
-          .mapToLong(point -> path1.shortestNumberOfStepsTo(point) + path2.shortestNumberOfStepsTo(point))
-          .min().getAsLong();
+      return intersectionPoints(path1, path2).stream()
+          .mapToLong(
+              point -> path1.shortestNumberOfStepsTo(point) + path2.shortestNumberOfStepsTo(point))
+          .min()
+          .getAsLong();
     }
 
     public long shortestNumberOfStepsTo(final Point point) {

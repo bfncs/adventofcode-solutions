@@ -1,12 +1,12 @@
 package us.byteb.advent.y20;
 
+import static us.byteb.advent.Utils.readFileFromResources;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static us.byteb.advent.Utils.readFileFromResources;
 
 public class Day8 {
 
@@ -18,11 +18,13 @@ public class Day8 {
   }
 
   static List<Instruction> parseProgram(final String input) {
-    return input.lines()
-        .map(line -> {
-          final String[] parts = line.split("\s+");
-          return Instruction.of(parts[0], Integer.parseInt(parts[1]));
-        })
+    return input
+        .lines()
+        .map(
+            line -> {
+              final String[] parts = line.split("\s+");
+              return Instruction.of(parts[0], Integer.parseInt(parts[1]));
+            })
         .collect(Collectors.toList());
   }
 
@@ -51,7 +53,6 @@ public class Day8 {
       boolean fixAttempted = false;
       final List<Integer> visitedInstructions = new ArrayList<>();
 
-
       while (!visitedInstructions.contains(pointer)) {
         if (pointer >= program.size()) {
           return acc;
@@ -60,7 +61,10 @@ public class Day8 {
         visitedInstructions.add(pointer);
         Instruction currentInstruction = program.get(pointer);
 
-        final boolean shouldFix = !fixAttempted && visitedInstructions.size() > lastFixAttemptPosition + 1 && (currentInstruction instanceof Nop || currentInstruction instanceof Jmp);
+        final boolean shouldFix =
+            !fixAttempted
+                && visitedInstructions.size() > lastFixAttemptPosition + 1
+                && (currentInstruction instanceof Nop || currentInstruction instanceof Jmp);
         if (shouldFix) {
           if (currentInstruction instanceof Nop nop) {
             currentInstruction = new Jmp(nop.num());
@@ -98,8 +102,7 @@ public class Day8 {
 
     Result execute(final int pointer, final int acc);
 
-    record Result(int pointer, int acc) {
-    }
+    record Result(int pointer, int acc) {}
   }
 
   record Nop(int num) implements Instruction {
