@@ -8,8 +8,15 @@ class Day4Test {
 
   @Test
   void part1Examples() {
-    assertTrue(Day4.isValid(111111));
-    assertFalse(Day4.isValid(223450));
-    assertFalse(Day4.isValid(123789));
+    assertTrue(Day4.isValid1(111111));
+    assertFalse(Day4.isValid1(223450));
+    assertFalse(Day4.isValid1(123789));
+  }
+
+  @Test
+  void part2Examples() {
+    assertTrue(Day4.isValid2(112233));
+    assertFalse(Day4.isValid2(123444));
+    assertTrue(Day4.isValid2(111122));
   }
 }
