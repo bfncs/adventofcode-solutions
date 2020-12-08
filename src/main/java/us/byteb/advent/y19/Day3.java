@@ -17,6 +17,8 @@ public class Day3 {
         "Part 1: "
             + Point.shortestManhattanDistanceToCenter(WirePath.intersectionPoints(path1, path2))
                 .manhattanDistanceToCenter());
+
+    System.out.println("Part 2: " + WirePath.fewestStepsToIntersection(path1, path2));
   }
 
   static String print(final WirePath path1, final WirePath path2) {
@@ -103,14 +105,25 @@ public class Day3 {
       return new WirePath(points);
     }
 
-    static Set<Point> intersectionPoints(final WirePath wp1, final WirePath wp2) {
-      return Stream.concat(wp1.points().stream().distinct(), wp2.points().stream().distinct())
+    static Set<Point> intersectionPoints(final WirePath path1, final WirePath path2) {
+      return Stream.concat(path1.points().stream().distinct(), path2.points().stream().distinct())
           .collect(Collectors.groupingBy(p -> p))
           .entrySet()
           .stream()
           .filter(entry -> entry.getValue().size() > 1)
           .map(Map.Entry::getKey)
           .collect(Collectors.toSet());
+    }
+
+    static long fewestStepsToIntersection(final WirePath path1, final WirePath path2) {
+      return intersectionPoints(path1, path2)
+          .stream()
+          .mapToLong(point -> path1.shortestNumberOfStepsTo(point) + path2.shortestNumberOfStepsTo(point))
+          .min().getAsLong();
+    }
+
+    public long shortestNumberOfStepsTo(final Point point) {
+      return points.indexOf(point) + 1;
     }
   }
 }
