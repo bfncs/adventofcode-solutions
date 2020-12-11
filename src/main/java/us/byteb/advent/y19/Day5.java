@@ -12,17 +12,17 @@ public class Day5 {
 
   public static void main(String[] args) {
     final List<Integer> program = parseInput(readFileFromResources("y19/day5.txt"));
-    System.out.println("Part 1: " + executeProgram(program));
+    // System.out.println("Part 1: " + executeProgram(program, 1));
+    System.out.println("Part 2: " + executeProgram(program, 5));
   }
 
   static List<Integer> parseInput(final String input) {
     return Arrays.stream(input.split(",")).map(Integer::parseInt).collect(Collectors.toList());
   }
 
-  static int executeProgram(final List<Integer> program) {
+  static int executeProgram(final List<Integer> program, final int input) {
     int pos = 0;
-    int input = 1;
-    int output = 1;
+    int output = Integer.MIN_VALUE;
 
     while (pos < program.size()) {
       System.out.println(programSnippetAroundPosition(program, pos));
@@ -57,6 +57,38 @@ public class Day5 {
           final int readValue = program.get(readPos);
           System.out.printf("  OUTPUT: Set output to value %d from pos %d%n", readValue, readPos);
           output = readValue;
+        }
+        case 5 -> {
+          final boolean shouldJump = op.pm1().parameter(program.get(pos++)).resolve(program) > 0;
+          final int jumpPos = op.pm2().parameter(program.get(pos++)).resolve(program);
+          System.out.println("  JUMP-IF-TRUE: " + (shouldJump ? " jump to " + jumpPos : " nop"));
+          if (shouldJump) {
+            pos = jumpPos;
+          }
+        }
+        case 6 -> {
+          final boolean shouldJump = op.pm1().parameter(program.get(pos++)).resolve(program) == 0;
+          final int jumpPos = op.pm2().parameter(program.get(pos++)).resolve(program);
+          System.out.println("  JUMP-IF-FALSE: " + (shouldJump ? " jump to " + jumpPos : " nop"));
+          if (shouldJump) {
+            pos = jumpPos;
+          }
+        }
+        case 7 -> {
+          final int param1 = op.pm1().parameter(program.get(pos++)).resolve(program);
+          final int param2 = op.pm2().parameter(program.get(pos++)).resolve(program);
+          final int result = (param1 < param2) ? 1 : 0;
+          final int writePos = program.get(pos++);
+          System.out.printf("  LESS THAN: %d < %d ? %d >> %d%n", param1, param2, result, writePos);
+          program.set(writePos, result);
+        }
+        case 8 -> {
+          final int param1 = op.pm1().parameter(program.get(pos++)).resolve(program);
+          final int param2 = op.pm2().parameter(program.get(pos++)).resolve(program);
+          final int result = (param1 == param2) ? 1 : 0;
+          final int writePos = program.get(pos++);
+          System.out.printf("  EQUALS: %d == %d ? %d >> %d%n", param1, param2, result, writePos);
+          program.set(writePos, result);
         }
         case 99 -> {
           System.out.println("HALT");
