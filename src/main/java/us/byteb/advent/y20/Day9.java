@@ -4,17 +4,24 @@ import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Day9 {
-
   public static void main(String[] args) {
-    final List<Long> input =
-        readFileFromResources("y20/day9.txt")
-            .lines()
-            .map(Long::parseLong)
-            .collect(Collectors.toList());
+    final List<Long> input = parse(readFileFromResources("y20/day9.txt"));
 
-    System.out.println("Part 1: " + findFirstInvalid(input, 25));
+    final long firstInvalid = findFirstInvalid(input, 25);
+    System.out.println("Part 1: " + firstInvalid);
+
+    final List<Long> contiguousSet = findContiguousSetWithSum(input, firstInvalid);
+    final long sum = contiguousSet.stream().mapToLong(i -> i).sum();
+    assert sum == firstInvalid;
+    final long resultPart2 = reduceToSolution(contiguousSet);
+    System.out.println("Part 2: " + resultPart2); // 17929808 is not the right answer 🤔
+  }
+
+  static List<Long> parse(final String input) {
+    return input.lines().map(Long::parseLong).collect(Collectors.toList());
   }
 
   static long findFirstInvalid(final List<Long> input, final int preambleSize) {
@@ -39,5 +46,31 @@ public class Day9 {
     }
 
     return false;
+  }
+
+  static List<Long> findContiguousSetWithSum(final List<Long> input, final long target) {
+    final int minSetSize = 2;
+    for (int setSize = minSetSize; setSize <= input.size() - minSetSize; setSize++) {
+      for (int j = 0; j < input.size() - setSize; j++) {
+        long sum = 0;
+        for (int i = 0; i < setSize; i++) {
+          sum += input.get(j + i);
+        }
+        if (sum == target) {
+          return IntStream.range(j, j + setSize - 1)
+              .mapToObj(input::get)
+              .collect(Collectors.toList());
+        }
+      }
+    }
+
+    throw new IllegalStateException("No result found");
+  }
+
+  static long reduceToSolution(final List<Long> contiguousSet) {
+    final long min = contiguousSet.stream().mapToLong(i -> i).min().getAsLong();
+    final long max = contiguousSet.stream().mapToLong(i -> i).max().getAsLong();
+    final long result = min + max;
+    return result;
   }
 }
