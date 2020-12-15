@@ -89,17 +89,24 @@ class Day11Test {
 
   @Test
   void part1ExampleSteps() {
-    assertEquals(part1ExampleSteps.get(1), nextState(part1ExampleSteps.get(0)));
-    assertEquals(part1ExampleSteps.get(2), nextState(part1ExampleSteps.get(1)));
-    assertEquals(part1ExampleSteps.get(3), nextState(part1ExampleSteps.get(2)));
-    assertEquals(part1ExampleSteps.get(4), nextState(part1ExampleSteps.get(3)));
-    assertEquals(part1ExampleSteps.get(5), nextState(part1ExampleSteps.get(4)));
-    assertEquals(part1ExampleSteps.get(5), nextState(part1ExampleSteps.get(5)));
+    assertEquals(
+        part1ExampleSteps.get(1), nextState(part1ExampleSteps.get(0), Day11::part1Strategy));
+    assertEquals(
+        part1ExampleSteps.get(2), nextState(part1ExampleSteps.get(1), Day11::part1Strategy));
+    assertEquals(
+        part1ExampleSteps.get(3), nextState(part1ExampleSteps.get(2), Day11::part1Strategy));
+    assertEquals(
+        part1ExampleSteps.get(4), nextState(part1ExampleSteps.get(3), Day11::part1Strategy));
+    assertEquals(
+        part1ExampleSteps.get(5), nextState(part1ExampleSteps.get(4), Day11::part1Strategy));
+    assertEquals(
+        part1ExampleSteps.get(5), nextState(part1ExampleSteps.get(5), Day11::part1Strategy));
   }
 
   @Test
   void part1ExampleStableState() {
-    final List<List<PositionState>> result = findStableState(part1ExampleSteps.get(0));
+    final List<List<PositionState>> result =
+        findStableState(part1ExampleSteps.get(0), Day11::part1Strategy);
     assertEquals(part1ExampleSteps.get(5), result);
     assertEquals(37, countOccupiedSeats(result));
   }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class Day11 {
@@ -15,7 +16,8 @@ public class Day11 {
     final List<List<PositionState>> initialState =
         parseInput(readFileFromResources("y20/day11.txt"));
 
-    System.out.println("Part 1: " + countOccupiedSeats(findStableState(initialState)));
+    System.out.println(
+        "Part 1: " + countOccupiedSeats(findStableState(initialState, Day11::part1Strategy)));
   }
 
   static List<List<PositionState>> parseInput(final String input) {
@@ -27,30 +29,39 @@ public class Day11 {
         .collect(Collectors.toList());
   }
 
-  static List<List<PositionState>> nextState(final List<List<PositionState>> curState) {
+  static List<List<PositionState>> nextState(
+      final List<List<PositionState>> curState,
+      final BiFunction<List<List<PositionState>>, Position, PositionState>
+          nextPositionStateStrategy) {
     final List<List<PositionState>> nextState = new ArrayList<>();
 
     for (int row = 0; row < curState.size(); row++) {
-      final List<PositionState> curRow = curState.get(row);
       final List<PositionState> nextRow = new ArrayList<>();
-      for (int col = 0; col < curRow.size(); col++) {
-        final PositionState nextPosition =
-            switch (curRow.get(col)) {
-              case FLOOR -> FLOOR;
-              case EMPTY_SEAT -> countOccupiedSeatsInRow(adjacentSeats(curState, row, col)) == 0
-                  ? OCCUPIED_SEAT
-                  : EMPTY_SEAT;
-              case OCCUPIED_SEAT -> countOccupiedSeatsInRow(adjacentSeats(curState, row, col)) >= 4
-                  ? EMPTY_SEAT
-                  : OCCUPIED_SEAT;
-            };
-
-        nextRow.add(nextPosition);
+      for (int col = 0; col < curState.get(row).size(); col++) {
+        nextRow.add(nextPositionStateStrategy.apply(curState, new Position(row, col)));
       }
       nextState.add(nextRow);
     }
 
     return nextState;
+  }
+
+  static PositionState part1Strategy(
+      final List<List<PositionState>> state, final Position position) {
+    final List<PositionState> curRow = state.get(position.row());
+    return switch (curRow.get(position.col())) {
+      case FLOOR -> FLOOR;
+      case EMPTY_SEAT -> countOccupiedSeatsInRow(
+                  adjacentSeats(state, position.row(), position.col()))
+              == 0
+          ? OCCUPIED_SEAT
+          : EMPTY_SEAT;
+      case OCCUPIED_SEAT -> countOccupiedSeatsInRow(
+                  adjacentSeats(state, position.row(), position.col()))
+              >= 4
+          ? EMPTY_SEAT
+          : OCCUPIED_SEAT;
+    };
   }
 
   static long countOccupiedSeats(final List<List<PositionState>> seats) {
@@ -82,16 +93,20 @@ public class Day11 {
   }
 
   public static List<List<PositionState>> findStableState(
-      final List<List<PositionState>> initialState) {
+      final List<List<PositionState>> initialState,
+      final BiFunction<List<List<PositionState>>, Position, PositionState>
+          nextPositionStateStrategy) {
     List<List<PositionState>> state = initialState;
     while (true) {
-      final List<List<PositionState>> nextState = nextState(state);
+      final List<List<PositionState>> nextState = nextState(state, nextPositionStateStrategy);
       if (state.equals(nextState)) {
         return state;
       }
       state = nextState;
     }
   }
+
+  final record Position(int row, int col) {}
 
   enum PositionState {
     FLOOR('.'),
