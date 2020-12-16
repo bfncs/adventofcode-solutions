@@ -1,12 +1,13 @@
 package us.byteb.advent.y20;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static us.byteb.advent.y20.Day13.findEarliestPossibleDeparture;
-import static us.byteb.advent.y20.Day13.parseInput;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static us.byteb.advent.y20.Day13.*;
 
-import java.util.List;
+import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
-import us.byteb.advent.y20.Day13.Notes;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import us.byteb.advent.y20.Day13.BusIdCandidate.BusId;
 
 class Day13Test {
 
@@ -16,12 +17,22 @@ class Day13Test {
       """;
 
   @Test
-  void part1ExampleParse() {
-    assertEquals(new Notes(939, List.of(7, 13, 59, 31, 19)), parseInput(INPUT));
+  void part1ExampleFindDeparture() {
+    assertEquals(
+        new Day13.Departure(new BusId(59), 944), findEarliestPossibleDeparture(parseInput(INPUT)));
   }
 
-  @Test
-  void part1ExampleFindDeparture() {
-    assertEquals(new Day13.Departure(59, 944), findEarliestPossibleDeparture(parseInput(INPUT)));
+  @ParameterizedTest
+  @CsvSource({
+    "3417,'17,x,13,19'",
+    "754018,'67,7,59,61'",
+    "779210,'67,x,7,59,61'",
+    "1261476,'67,7,x,59,61'",
+    "1202161486,'1789,37,47,1889'"
+  })
+  void part2ExampleP(final long expectedResult, final String input) {
+    assertEquals(
+        BigInteger.valueOf(expectedResult),
+        findEarliestBusIdWithOffsetMatchingPosition(parseBusIdCandidates(input)));
   }
 }
