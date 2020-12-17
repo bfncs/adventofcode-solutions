@@ -82,11 +82,11 @@ public class Day13 {
 
     BigInteger timestamp =
         minTimestamp.subtract(minTimestamp.mod(BigInteger.valueOf(largestBusId.id())));
+    BigInteger increment = BigInteger.valueOf(largestBusId.id());
+
     while (true) {
-      timestamp = timestamp.add(BigInteger.valueOf(largestBusId.id()));
-      if ((timestamp.mod(BigInteger.valueOf(100000000L)).equals(ZERO))) {
-        System.out.println(timestamp);
-      }
+      timestamp = timestamp.add(increment);
+
       for (int i = 1; i <= busIdsSortedReverse.size(); i++) {
         final BusId currentBusId = busIdsSortedReverse.get(i);
         final BusIdRelation relation = busIdRelations.get(currentBusId);
@@ -95,14 +95,21 @@ public class Day13 {
         final boolean relationOffsetCandidateValid =
             relationOffsetCandidate.mod(BigInteger.valueOf(relation.busId().id())).equals(ZERO);
 
-        if (relationOffsetCandidateValid) {
-          if (i == busIdsSortedReverse.size() - 1) {
-            final BusIdRelation relationToFirstCandidate =
-                buildBusIdRelation(busIdCandidates, largestBusId, firstBusId);
-            return timestamp.add(BigInteger.valueOf(relationToFirstCandidate.offset()));
-          }
-        } else {
+        if (!relationOffsetCandidateValid) {
           break;
+        }
+
+        // We can increase increment for every new bus id for which we found a match
+        // https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Search_by_sieving
+        if (!(increment.mod(BigInteger.valueOf(currentBusId.id())).equals(ZERO))) {
+          increment = increment.multiply(BigInteger.valueOf(currentBusId.id()));
+        }
+
+        // If we found match for the smallest busId, we're done
+        if (i == busIdsSortedReverse.size() - 1) {
+          final BusIdRelation relationToFirstCandidate =
+              buildBusIdRelation(busIdCandidates, largestBusId, firstBusId);
+          return timestamp.add(BigInteger.valueOf(relationToFirstCandidate.offset()));
         }
       }
     }
