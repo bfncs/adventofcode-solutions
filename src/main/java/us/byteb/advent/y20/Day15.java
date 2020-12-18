@@ -2,16 +2,14 @@ package us.byteb.advent.y20;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.util.*;
 
 public class Day15 {
 
   public static void main(String[] args) {
     final List<Integer> input = parseInput("12,1,16,3,11,0");
     System.out.println("Part 1: " + findNumber(input, 2020));
+    System.out.println("Part 2: " + findNumber(input, 30000000));
   }
 
   public static List<Integer> parseInput(final String input) {
@@ -19,30 +17,27 @@ public class Day15 {
   }
 
   public static int findNumber(final List<Integer> startingNumbers, final int maxIterations) {
-    List<Integer> history = new ArrayList<>();
+    final Map<Integer, Integer> secondToLastIndex = new HashMap<>();
+    final Map<Integer, Integer> lastIndex = new HashMap<>();
+    int lastNumber = -1;
+
     for (int iteration = 0; iteration < maxIterations; iteration++) {
-      history.add(findNumberImpl(startingNumbers, history, iteration));
+      if (iteration < startingNumbers.size()) {
+        lastNumber = startingNumbers.get(iteration);
+      } else {
+        if (secondToLastIndex.containsKey(lastNumber)) {
+          lastNumber = lastIndex.get(lastNumber) - secondToLastIndex.get(lastNumber);
+        } else {
+          lastNumber = 0;
+        }
+
+        if (lastIndex.containsKey(lastNumber)) {
+          secondToLastIndex.put(lastNumber, lastIndex.get(lastNumber));
+        }
+      }
+      lastIndex.put(lastNumber, iteration);
     }
 
-    return history.get(history.size() - 1);
-  }
-
-  private static int findNumberImpl(
-      final List<Integer> startingNumbers, final List<Integer> history, final int i) {
-    if (i < startingNumbers.size()) {
-      return startingNumbers.get(i);
-    }
-
-    final int lastNumber = history.get(i - 1);
-    final List<Integer> indexesOfLastNumber =
-        IntStream.range(0, history.size())
-            .filter(index -> history.get(index) == lastNumber)
-            .boxed()
-            .collect(toList());
-
-    return indexesOfLastNumber.size() > 1
-        ? indexesOfLastNumber.get(indexesOfLastNumber.size() - 1)
-            - indexesOfLastNumber.get(indexesOfLastNumber.size() - 2)
-        : 0;
+    return lastNumber;
   }
 }
