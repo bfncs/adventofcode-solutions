@@ -1,8 +1,7 @@
 package us.byteb.advent.y20;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static us.byteb.advent.y20.Day16.findTicketsWithValuesNotValidForAnyField;
-import static us.byteb.advent.y20.Day16.parseInput;
+import static us.byteb.advent.y20.Day16.*;
 
 import java.util.List;
 import java.util.Map;
@@ -56,5 +55,28 @@ class Day16Test {
             new ValidationResult(Ticket.of(55, 2, 20), Optional.of(55)),
             new ValidationResult(Ticket.of(38, 6, 12), Optional.of(12))),
         findTicketsWithValuesNotValidForAnyField(parseInput(INPUT)));
+  }
+
+  @Test
+  void part2Example() {
+    assertEquals(
+        Map.of(
+            "row", 11,
+            "class", 12,
+            "seat", 13),
+        resolveOwnTicket(
+            parseInput(
+                """
+                    class: 0-1 or 4-19
+                    row: 0-5 or 8-19
+                    seat: 0-13 or 16-19
+
+                    your ticket:
+                    11,12,13
+
+                    nearby tickets:
+                    3,9,18
+                    15,1,5
+                    5,14,9""")));
   }
 }
