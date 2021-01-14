@@ -3,184 +3,205 @@ package us.byteb.advent.y20;
 import static java.lang.Character.isDigit;
 import static java.lang.Integer.parseInt;
 import static us.byteb.advent.Utils.readFileFromResources;
-import static us.byteb.advent.y20.Day18.Expression.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import us.byteb.advent.y20.Day18.Token.ClosingParenthesis;
+import us.byteb.advent.y20.Day18.Token.Num;
+import us.byteb.advent.y20.Day18.Token.OpeningParenthesis;
+import us.byteb.advent.y20.Day18.Token.Operator;
+import us.byteb.advent.y20.Day18.Token.Operator.Multiply;
+import us.byteb.advent.y20.Day18.Token.Operator.Plus;
 
-public class Day18 {
+public final class Day18 {
 
-  public static void main(String[] args) {
+  public static void main(String[] args){
     final String input = readFileFromResources("y20/day18.txt");
-
-    final long resultPart1 = input.lines().mapToLong(line -> parse(line).eval().value()).sum();
-    System.out.println("Part 1: " + resultPart1);
+    System.out.println("Part 1: " + input.lines().mapToLong(Day18::evaluate).sum());
+    System.out.println("Part 2: " + input.lines().mapToLong(line -> evaluate(line, List.of(Plus.class, Multiply.class))).sum());
   }
 
-  interface Expression {
+  public static long evaluate(final String input) {
+    return evaluate(input, List.of(Operator.class));
+  }
 
-    static Expression parse(final String input) {
-      return ExpressionParser.parse(input);
-    }
+  public static long evaluate(
+      final String input, final List<Class<? extends Operator>> operatorPrecedence) {
+    return ((Num) evaluate(tokenize(input), operatorPrecedence).get(0)).value();
+  }
 
-    static Number num(final long i) {
-      return new Number(i);
-    }
+  private static List<Token> evaluate(
+      final List<Token> tokens, final List<Class<? extends Operator>> operatorPrecedence) {
+    return resolveOperators(
+        resolveParentheses(List.copyOf(tokens), operatorPrecedence), operatorPrecedence);
+  }
 
-    static Addition add(final Expression addend1, final Expression addend2) {
-      return new Addition(addend1, addend2);
-    }
+  private static List<Token> resolveParentheses(
+      List<Token> tokens, final List<Class<? extends Operator>> operatorPrecedence) {
+    List<Token> curTokens = List.copyOf(tokens);
 
-    static Multiplication mult(final Expression factor1, final Expression factor2) {
-      return new Multiplication(factor1, factor2);
-    }
+    while (true) {
+      final Optional<Token> openingParenthesis =
+          curTokens.stream().filter(t -> t instanceof OpeningParenthesis).findFirst();
 
-    static SubTerm sub(final Expression expression) {
-      return new SubTerm(expression);
-    }
-
-    Number eval();
-
-    record Number(long value) implements Expression {
-
-      @Override
-      public Number eval() {
-        return this;
+      if (openingParenthesis.isEmpty()) {
+        return curTokens;
       }
 
+      final int pos = curTokens.indexOf(openingParenthesis.get());
+
+      int i = pos;
+      int innerOpenedBrackets = 0;
+      while (++i < curTokens.size()) {
+        if (curTokens.get(i) instanceof OpeningParenthesis) {
+          innerOpenedBrackets++;
+        } else if (curTokens.get(i) instanceof ClosingParenthesis) {
+          if (innerOpenedBrackets == 0) {
+            final List<Token> bracketResult =
+                evaluate(curTokens.subList(pos + 1, i), operatorPrecedence);
+            curTokens = splice(curTokens, pos, i - pos, bracketResult);
+            break;
+          } else {
+            innerOpenedBrackets--;
+          }
+        }
+      }
+    }
+  }
+
+  private static List<Token> resolveOperators(
+      final List<Token> tokens, final List<Class<? extends Operator>> operatorPrecedence) {
+    List<Token> curTokens = List.copyOf(tokens);
+    for (final Class<? extends Operator> operatorType : operatorPrecedence) {
+      curTokens = resolveOperator(curTokens, operatorType);
+    }
+
+    return curTokens;
+  }
+
+  private static List<Token> resolveOperator(
+      final List<Token> tokens, final Class<? extends Operator> operatorType) {
+    List<Token> curTokens = List.copyOf(tokens);
+
+    while (true) {
+      final Optional<Operator> operator =
+          curTokens.stream().filter(operatorType::isInstance).map(t -> (Operator) t).findFirst();
+
+      if (operator.isEmpty()) {
+        return curTokens;
+      }
+
+      final int index = curTokens.indexOf(operator.get());
+      final Num arg1 = (Num) curTokens.get(index - 1);
+      final Num arg2 = (Num) curTokens.get(index + 1);
+      final Num result = operator.get().evaluate(arg1, arg2);
+
+      curTokens = splice(curTokens, index - 1, 2, List.of(result));
+    }
+  }
+
+  private static <T> List<T> splice(
+      final List<T> tokens, final int start, final int deleteCount, final List<T> addItems) {
+    final List<T> nextResult = new ArrayList<>(tokens.subList(0, start));
+    nextResult.addAll(addItems);
+    nextResult.addAll(tokens.subList(start + deleteCount + 1, tokens.size()));
+
+    return nextResult;
+  }
+
+  static List<Token> tokenize(final String input) {
+    record Result(int nextPos, Token token) {}
+    final List<Token> tokens = new ArrayList<>();
+    int pos = 0;
+
+    while (pos < input.length()) {
+      final char curChar = input.charAt(pos);
+
+      final Result result =
+          switch (curChar) {
+            case ' ' -> new Result(pos + 1, null);
+            case '+' -> new Result(pos + 1, new Plus());
+            case '*' -> new Result(pos + 1, new Multiply());
+            case '(' -> new Result(pos + 1, new OpeningParenthesis());
+            case ')' -> new Result(pos + 1, new ClosingParenthesis());
+            default -> {
+              if (!isDigit(curChar)) {
+                throw new IllegalStateException(
+                    "Illegal character %s at pos %d".formatted(curChar, pos));
+              }
+
+              int i = pos;
+              while (i < input.length()) {
+                if (!isDigit(input.charAt(i))) {
+                  break;
+                }
+                i++;
+              }
+
+              yield new Result(i, new Num(parseInt(input.substring(pos, i))));
+            }
+          };
+
+      if (result.token() != null) {
+        tokens.add(result.token());
+      }
+      pos = result.nextPos();
+    }
+
+    return tokens;
+  }
+
+  interface Token {
+    interface Operator extends Token {
+      Num evaluate(Num a, Num b);
+
+      record Plus() implements Operator {
+
+        @Override
+        public Num evaluate(final Num a, final Num b) {
+          return new Num(a.value() + b.value());
+        }
+
+        @Override
+        public String toString() {
+          return "+";
+        }
+      }
+
+      record Multiply() implements Operator {
+        @Override
+        public Num evaluate(final Num a, final Num b) {
+          return new Num(a.value() * b.value());
+        }
+
+        @Override
+        public String toString() {
+          return "*";
+        }
+      }
+    }
+
+    record Num(long value) implements Token {
       @Override
       public String toString() {
         return String.valueOf(value);
       }
     }
 
-    record Addition(Expression addend1, Expression addend2) implements Expression {
-
+    record OpeningParenthesis() implements Token {
       @Override
-      public Number eval() {
-        return new Number(addend1.eval().value() + addend2().eval().value());
+      public String toString() {
+        return "(";
       }
+    }
+
+    record ClosingParenthesis() implements Token {
 
       @Override
       public String toString() {
-        return addend1 + " + " + addend2;
+        return ")";
       }
-    }
-
-    record Multiplication(Expression factor1, Expression factor2) implements Expression {
-
-      @Override
-      public Number eval() {
-        return new Number(factor1.eval().value() * factor2().eval().value());
-      }
-
-      @Override
-      public String toString() {
-        return factor1 + " * " + factor2;
-      }
-    }
-
-    record SubTerm(Expression expression) implements Expression {
-
-      @Override
-      public Number eval() {
-        return expression.eval();
-      }
-
-      @Override
-      public String toString() {
-        return "(" + expression + ")";
-      }
-    }
-  }
-
-  private static class ExpressionParser {
-    static Expression parse(final String input) {
-      Expression lastExpression = null;
-      int pos = 0;
-
-      while (pos < input.length()) {
-        final ParseNextResult result = parseNext(input, pos, lastExpression);
-        if (result.expression().isPresent()) {
-          lastExpression = result.expression().get();
-        }
-        pos = result.nextPos();
-      }
-
-      if (lastExpression == null) {
-        throw new IllegalStateException("Expression incomplete");
-      }
-      return lastExpression;
-    }
-
-    record ParseNextResult(Optional<Expression> expression, int nextPos) {}
-
-    private static ParseNextResult parseNext(
-        final String input, int pos, final Expression lastExpression) {
-      final char curChar = input.charAt(pos);
-      if (curChar == ' ') {
-        return new ParseNextResult(Optional.empty(), pos + 1);
-      } else if (isDigit(curChar)) {
-        int i = pos;
-        while (i < input.length()) {
-          if (!isDigit(input.charAt(i))) {
-            break;
-          }
-          i++;
-        }
-        return new ParseNextResult(Optional.of(num(parseInt(input.substring(pos, i)))), i);
-      } else if (curChar == '+') {
-        return parseNextInfixOperator(input, pos, lastExpression, curChar, Expression::add);
-      } else if (curChar == '*') {
-        return parseNextInfixOperator(input, pos, lastExpression, curChar, Expression::mult);
-      } else if (curChar == '(') {
-        int i = pos;
-        int innerOpenedBrackets = 0;
-        while (++i < input.length()) {
-          if (input.charAt(i) == '(') {
-            innerOpenedBrackets++;
-          } else if (input.charAt(i) == ')') {
-            if (innerOpenedBrackets == 0) {
-              final String term = input.substring(pos + 1, i);
-              return new ParseNextResult(Optional.of(sub(parse(term))), i + 1);
-            } else {
-              innerOpenedBrackets--;
-            }
-          }
-        }
-
-        throw new IllegalStateException(
-            "No closing bracket for opening bracket at position " + pos);
-      } else {
-        throw new IllegalStateException(
-            "Illegal character '%s' at position %d".formatted(curChar, pos));
-      }
-    }
-
-    private static ParseNextResult parseNextInfixOperator(
-        final String input,
-        final int pos,
-        final Expression lastExpression,
-        final char curChar,
-        final BiFunction<Expression, Expression, Expression> expressionCreator) {
-      if (lastExpression == null) {
-        throw new IllegalStateException(
-            "Illegal character '%s' at position %d".formatted(curChar, pos));
-      }
-      ParseNextResult addend2 = null;
-      int i = pos + 1;
-      while (i < input.length()) {
-        addend2 = parseNext(input, i++, lastExpression);
-        if (addend2.expression().isPresent()) {
-          break;
-        }
-      }
-      if (addend2 == null || addend2.expression().isEmpty()) {
-        throw new IllegalStateException("Missing addend after position %d".formatted(pos));
-      }
-      return new ParseNextResult(
-          Optional.of(expressionCreator.apply(lastExpression, addend2.expression().get())),
-          addend2.nextPos());
     }
   }
 }

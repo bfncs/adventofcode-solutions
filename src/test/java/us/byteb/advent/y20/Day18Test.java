@@ -1,35 +1,61 @@
 package us.byteb.advent.y20;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static us.byteb.advent.y20.Day18.Expression.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static us.byteb.advent.y20.Day18.evaluate;
+import static us.byteb.advent.y20.Day18.tokenize;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import us.byteb.advent.y20.Day18.Token.ClosingParenthesis;
+import us.byteb.advent.y20.Day18.Token.Num;
+import us.byteb.advent.y20.Day18.Token.OpeningParenthesis;
+import us.byteb.advent.y20.Day18.Token.Operator;
+import us.byteb.advent.y20.Day18.Token.Operator.Multiply;
+import us.byteb.advent.y20.Day18.Token.Operator.Plus;
 
 class Day18Test {
 
   @Test
-  void parseExpression() {
+  void tokenizeInput() {
     assertEquals(
-        add(add(num(1), sub(mult(num(2), num(3)))), sub(mult(num(4), sub(add(num(5), num(6)))))),
-        parse("1 + (2 * 3) + (4 * (5 + 6))"));
-  }
-
-  @Test
-  void evaluateExpression() {
-    assertEquals(3, add(num(1), num(2)).eval().value());
-    assertEquals(6, add(num(1), add(num(2), num(3))).eval().value());
-    assertEquals(
-        51,
-        add(add(num(1), sub(mult(num(2), num(3)))), sub(mult(num(4), sub(add(num(5), num(6))))))
-            .eval()
-            .value());
+        List.of(
+            new Num(1),
+            new Plus(),
+            new OpeningParenthesis(),
+            new Num(2),
+            new Multiply(),
+            new Num(3),
+            new ClosingParenthesis(),
+            new Plus(),
+            new OpeningParenthesis(),
+            new Num(4),
+            new Multiply(),
+            new OpeningParenthesis(),
+            new Num(5),
+            new Plus(),
+            new Num(6),
+            new ClosingParenthesis(),
+            new ClosingParenthesis()),
+        tokenize("1 + (2 * 3) + (4 * (5 + 6))"));
   }
 
   @Test
   void part1Examples() {
-    assertEquals(26, parse("2 * 3 + (4 * 5)").eval().value());
-    assertEquals(437, parse("5 + (8 * 3 + 9 + 3 * 4 * 3)").eval().value());
-    assertEquals(12240, parse("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))").eval().value());
-    assertEquals(13632, parse("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2").eval().value());
+    assertEquals(26, evaluate("2 * 3 + (4 * 5)"));
+    assertEquals(437, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)"));
+    assertEquals(12240, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"));
+    assertEquals(13632, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"));
+  }
+
+  @Test
+  void part2Examples() {
+    final List<Class<? extends Operator>> operatorPrecedence = List.of(Plus.class, Multiply.class);
+
+    assertEquals(231, evaluate("1 + 2 * 3 + 4 * 5 + 6", operatorPrecedence));
+    assertEquals(46, evaluate("2 * 3 + (4 * 5)", operatorPrecedence));
+    assertEquals(1445, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", operatorPrecedence));
+    assertEquals(669060, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", operatorPrecedence));
+    assertEquals(
+        23340, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", operatorPrecedence));
   }
 }
