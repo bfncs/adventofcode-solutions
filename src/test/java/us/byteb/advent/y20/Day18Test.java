@@ -1,15 +1,14 @@
 package us.byteb.advent.y20;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.y20.Day18.evaluate;
-import static us.byteb.advent.y20.Day18.tokenize;
+import static us.byteb.advent.y20.Day18.*;
+import static us.byteb.advent.y20.Day18.Tokenizer.tokenize;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import us.byteb.advent.y20.Day18.Token.ClosingParenthesis;
 import us.byteb.advent.y20.Day18.Token.Num;
 import us.byteb.advent.y20.Day18.Token.OpeningParenthesis;
-import us.byteb.advent.y20.Day18.Token.Operator;
 import us.byteb.advent.y20.Day18.Token.Operator.Multiply;
 import us.byteb.advent.y20.Day18.Token.Operator.Plus;
 
@@ -41,21 +40,21 @@ class Day18Test {
 
   @Test
   void part1Examples() {
-    assertEquals(26, evaluate("2 * 3 + (4 * 5)"));
-    assertEquals(437, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)"));
-    assertEquals(12240, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"));
-    assertEquals(13632, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"));
+    assertEquals(26, evaluate("2 * 3 + (4 * 5)", LEFT_BEFORE_RIGHT));
+    assertEquals(437, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", LEFT_BEFORE_RIGHT));
+    assertEquals(12240, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", LEFT_BEFORE_RIGHT));
+    assertEquals(
+        13632, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", LEFT_BEFORE_RIGHT));
   }
 
   @Test
   void part2Examples() {
-    final List<Class<? extends Operator>> operatorPrecedence = List.of(Plus.class, Multiply.class);
-
-    assertEquals(231, evaluate("1 + 2 * 3 + 4 * 5 + 6", operatorPrecedence));
-    assertEquals(46, evaluate("2 * 3 + (4 * 5)", operatorPrecedence));
-    assertEquals(1445, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", operatorPrecedence));
-    assertEquals(669060, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", operatorPrecedence));
+    assertEquals(231, evaluate("1 + 2 * 3 + 4 * 5 + 6", MULTIPLY_BEFORE_ADD));
+    assertEquals(46, evaluate("2 * 3 + (4 * 5)", MULTIPLY_BEFORE_ADD));
+    assertEquals(1445, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", MULTIPLY_BEFORE_ADD));
     assertEquals(
-        23340, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", operatorPrecedence));
+        669060, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", MULTIPLY_BEFORE_ADD));
+    assertEquals(
+        23340, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", MULTIPLY_BEFORE_ADD));
   }
 }
