@@ -49,12 +49,12 @@ class Day18Test {
 
   @Test
   void part2Examples() {
-    assertEquals(231, evaluate("1 + 2 * 3 + 4 * 5 + 6", MULTIPLY_BEFORE_ADD));
-    assertEquals(46, evaluate("2 * 3 + (4 * 5)", MULTIPLY_BEFORE_ADD));
-    assertEquals(1445, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", MULTIPLY_BEFORE_ADD));
+    assertEquals(231, evaluate("1 + 2 * 3 + 4 * 5 + 6", PLUS_BEFORE_MULTIPLY));
+    assertEquals(46, evaluate("2 * 3 + (4 * 5)", PLUS_BEFORE_MULTIPLY));
+    assertEquals(1445, evaluate("5 + (8 * 3 + 9 + 3 * 4 * 3)", PLUS_BEFORE_MULTIPLY));
     assertEquals(
-        669060, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", MULTIPLY_BEFORE_ADD));
+        669060, evaluate("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))", PLUS_BEFORE_MULTIPLY));
     assertEquals(
-        23340, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", MULTIPLY_BEFORE_ADD));
+        23340, evaluate("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2", PLUS_BEFORE_MULTIPLY));
   }
 }

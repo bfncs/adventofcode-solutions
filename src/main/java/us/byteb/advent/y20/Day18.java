@@ -17,7 +17,7 @@ import us.byteb.advent.y20.Day18.Token.Operator.Plus;
 public final class Day18 {
 
   static final List<Class<? extends Operator>> LEFT_BEFORE_RIGHT = List.of(Operator.class);
-  static final List<Class<? extends Operator>> MULTIPLY_BEFORE_ADD =
+  static final List<Class<? extends Operator>> PLUS_BEFORE_MULTIPLY =
       List.of(Plus.class, Multiply.class);
 
   public static void main(String[] args) {
@@ -26,7 +26,7 @@ public final class Day18 {
     System.out.println(
         "Part 1: " + input.lines().mapToLong(input1 -> evaluate(input1, LEFT_BEFORE_RIGHT)).sum());
     System.out.println(
-        "Part 2: " + input.lines().mapToLong(line -> evaluate(line, MULTIPLY_BEFORE_ADD)).sum());
+        "Part 2: " + input.lines().mapToLong(line -> evaluate(line, PLUS_BEFORE_MULTIPLY)).sum());
   }
 
   public static long evaluate(
