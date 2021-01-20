@@ -2,85 +2,84 @@ package us.byteb.advent.y20;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.*;
 import static us.byteb.advent.Utils.readFileFromResources;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
 public class Day19 {
 
   public static void main(String[] args) {
-    final PuzzleInput puzzleInput = parsePuzzleInput(readFileFromResources("y20/day19.txt"));
+    final PuzzleInput puzzleInput = PuzzleInput.parse(readFileFromResources("y20/day19.txt"));
 
-    final long numberOfValidMessages =
-        puzzleInput.messages().stream()
-            .filter(message -> Rule.isValid(puzzleInput.rules(), message))
-            .count();
-    System.out.println("Part 1: " + numberOfValidMessages);
+    System.out.println("Part 1: " + puzzleInput.findValidMessages().size());
+    System.out.println("Part 2: " + puzzleInput.withModifiedRuleSet().findValidMessages().size());
   }
 
-  record PuzzleInput(Map<Integer, Rule> rules, List<String> messages) {}
-  ;
-
-  private static PuzzleInput parsePuzzleInput(final String input) {
-    final List<String> lines = input.lines().collect(toList());
-
-    final int firstEmptyLine =
-        lines.indexOf(lines.stream().filter(l -> l.isEmpty()).findFirst().orElseThrow());
-    final String rulesInput = lines.subList(0, firstEmptyLine).stream().collect(joining("\n"));
-    final Map<Integer, Rule> rules = Rule.parse(rulesInput);
-
-    return new PuzzleInput(rules, lines.subList(firstEmptyLine + 1, lines.size()));
-  }
-
-  interface Rule {
-    private static void logMatch(
-        final String input, final Rule rule, final boolean isMatching, final String remainder) {
-      if (isMatching) {
-        System.out.printf("✔ '%s' %s %s%n", input, rule, remainder);
-      } else {
-        System.out.printf("⭕ '%s' %s %s%n", input, rule, remainder);
-      }
-    }
-
-    static Map<Integer, Rule> parse(final String input) {
+  record PuzzleInput(RuleSet ruleSet, List<String> messages) {
+    static PuzzleInput parse(final String input) {
       final List<String> lines = input.lines().collect(toList());
 
-      final Map<Integer, Rule> rules = parseRules(lines);
-      System.out.println(rules);
+      final int firstEmptyLine =
+          lines.indexOf(lines.stream().filter(String::isEmpty).findFirst().orElseThrow());
+      final String rulesInput = String.join("\n", lines.subList(0, firstEmptyLine));
+      final RuleSet ruleSet = RuleSet.parse(rulesInput);
 
-      return rules;
+      return new PuzzleInput(ruleSet, lines.subList(firstEmptyLine + 1, lines.size()));
     }
 
-    static boolean isValid(final Map<Integer, Rule> ruleSet, final String input) {
-      if (StringUtils.isBlank(input)) {
-        return false;
-      }
-
-      final ValidationResult result = ruleSet.get(0).isValid(input, ruleSet);
-      return result.isValid() && result.remainder().isEmpty();
+    Set<String> findValidMessages() {
+      return messages.stream().filter(ruleSet::isValid).collect(toSet());
     }
 
-    ValidationResult isValid(String input, Map<Integer, Rule> rules);
+    PuzzleInput withModifiedRuleSet() {
+      return new PuzzleInput(ruleSet.withModifiedRules(), messages);
+    }
+  }
 
-    private static Map<Integer, Rule> parseRules(final List<String> lines) {
+  record RuleSet(Map<Integer, Rule> rules) {
+    public static RuleSet parse(final String input) {
+      final List<String> lines = input.lines().collect(toList());
+
       final Map<Integer, Rule> rules = new HashMap<>();
       for (final String line : lines) {
         final String[] split = line.split(":");
         final int pos = parseInt(split[0]);
         final String value = split[1].trim();
 
-        final Rule rule = parseRuleValue(pos, value);
+        final Rule rule = Rule.parseRuleValue(pos, value);
         rules.put(pos, rule);
       }
 
-      return rules;
+      return new RuleSet(rules);
     }
+
+    private RuleSet withModifiedRules() {
+      final Map<Integer, Rule> modifiedRules = new HashMap<>(rules);
+      modifiedRules.put(8, Rule.parseRuleValue(8, "42 | 42 8"));
+      modifiedRules.put(11, Rule.parseRuleValue(11, "42 31 | 42 11 31"));
+
+      return new RuleSet(modifiedRules);
+    }
+
+    boolean isValid(final String input) {
+      if (StringUtils.isBlank(input)) {
+        return false;
+      }
+
+      final List<String> result = rules.get(0).matches(input, this);
+      return result.stream().anyMatch(m -> m.length() == 0);
+    }
+
+    public Rule rule(final int pos) {
+      return rules.get(pos);
+    }
+  }
+
+  interface Rule {
+    List<String> matches(String input, RuleSet ruleSet);
 
     private static Rule parseRuleValue(final int pos, final String value) {
       if (value.charAt(0) == '"') {
@@ -125,92 +124,61 @@ public class Day19 {
       return new Ref(refPos);
     }
 
-    final record ValidationResult(boolean isValid, String remainder) {}
-
     final record Literal(int pos, char value) implements Rule {
       @Override
-      public ValidationResult isValid(final String input, final Map<Integer, Rule> ruleSet) {
-        final ValidationResult result =
-            new ValidationResult(input.charAt(0) == value, input.substring(1));
-        logMatch(input, this, result.isValid(), result.remainder());
-        return result;
-      }
+      public List<String> matches(final String input, final RuleSet ruleSet) {
+        if (input.isBlank()) {
+          return emptyList();
+        }
 
-      @Override
-      public String toString() {
-        return "lit[" + pos + "](" + value + ")";
+        final boolean isMatching = input.charAt(0) == value;
+        final String remainder = input.substring(1);
+        if (isMatching) {
+          return List.of(remainder);
+        } else {
+          return emptyList();
+        }
       }
     }
 
     final record Or(int pos, List<Rule> rules) implements Rule {
       @Override
-      public ValidationResult isValid(final String input, final Map<Integer, Rule> ruleSet) {
+      public List<String> matches(final String input, final RuleSet ruleSet) {
+        final ArrayList<String> result = new ArrayList<>();
         for (final Rule rule : rules) {
-          final ValidationResult result = rule.isValid(input, ruleSet);
-          if (result.isValid()) {
-            logMatch(input, this, true, result.remainder());
-            return result;
-          }
+          result.addAll(rule.matches(input, ruleSet));
         }
-        logMatch(input, this, false, null);
-        return new ValidationResult(false, null);
-      }
 
-      @Override
-      public String toString() {
-        return "or["
-            + pos
-            + "]("
-            + rules.stream().map(Object::toString).collect(joining(", "))
-            + ")";
+        return result;
       }
     }
 
     final record Seq(int pos, List<Rule> rules) implements Rule {
       @Override
-      public ValidationResult isValid(final String input, final Map<Integer, Rule> ruleSet) {
-        String curInput = input;
+      public List<String> matches(final String input, final RuleSet ruleSet) {
+        List<String> curMatches = List.of(input);
 
-        for (Rule rule : rules) {
-          if (curInput.isEmpty()) {
-            logMatch(input, this, false, "");
-            return new ValidationResult(false, "");
+        for (final Rule rule : rules) {
+          final List<String> matches = new ArrayList<>();
+          for (final String curInput : curMatches) {
+            matches.addAll(rule.matches(curInput, ruleSet));
           }
 
-          final ValidationResult result = rule.isValid(curInput, ruleSet);
-          if (!result.isValid()) {
-            logMatch(input, this, false, result.remainder());
-            return result;
+          if (matches.isEmpty()) {
+            return matches;
           }
 
-          curInput = result.remainder();
+          curMatches = matches;
         }
 
-        logMatch(input, this, true, curInput);
-        return new ValidationResult(true, curInput);
-      }
-
-      @Override
-      public String toString() {
-        return "seq["
-            + pos
-            + "]("
-            + rules.stream().map(Object::toString).collect(joining(", "))
-            + ")";
+        return curMatches;
       }
     }
 
     record Ref(int rulePos) implements Rule {
       @Override
-      public ValidationResult isValid(final String input, final Map<Integer, Rule> ruleSet) {
-        final ValidationResult result = ruleSet.get(rulePos).isValid(input, ruleSet);
-        // logMatch(input, this, result.isValid(), result.remainder());
-        return result;
-      }
-
-      @Override
-      public String toString() {
-        return "ref(" + rulePos + ")";
+      public List<String> matches(final String input, final RuleSet ruleSet) {
+        return ruleSet.rule(rulePos).matches(input, ruleSet);
       }
     }
   }
