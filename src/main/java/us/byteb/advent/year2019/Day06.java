@@ -1,20 +1,20 @@
 package us.byteb.advent.year2019;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import us.byteb.advent.Utils;
+
+import static java.util.stream.Collectors.toSet;
+import static us.byteb.advent.Utils.readFileFromResources;
 
 public class Day06 {
 
   public static void main(String[] args) {
-    final String input = Utils.readFileFromResources("year2019/day06.txt");
-    System.out.println("Part 1: " + countOrbits(parse(input)));
-    System.out.println("Part 2: " + findMinNumberOfRequiredTransfers(parse(input)));
+    final Set<OrbitRelation> relations = parse(readFileFromResources("year2019/day06.txt"));
+    System.out.println("Part 1: " + countOrbits(relations));
+    System.out.println("Part 2: " + findMinNumberOfRequiredTransfers(relations));
   }
 
   public static Set<OrbitRelation> parse(final String input) {
@@ -29,33 +29,22 @@ public class Day06 {
 
     int numOrbits = 0;
     for (final SpaceObject spaceObject : spaceObjects) {
-      Optional<SpaceObject> maybeCurrent = Optional.of(spaceObject);
-      while (maybeCurrent.isPresent()) {
-        final SpaceObject current = maybeCurrent.get();
-        maybeCurrent =
-            relations.stream()
-                .filter(r -> r.inOrbitAround().equals(current))
-                .findAny()
-                .map(OrbitRelation::orbitCenter);
-        if (maybeCurrent.isPresent()) {
-          numOrbits += 1;
-        }
-      }
+      numOrbits += findParents(relations, spaceObject).size();
     }
 
     return numOrbits;
   }
 
   public static int findMinNumberOfRequiredTransfers(final Set<OrbitRelation> relations) {
-    final List<SpaceObject> parentsYou = findParents(relations, "YOU");
-    final List<SpaceObject> parentsSanta = findParents(relations, "SAN");
+    final List<SpaceObject> parentsYou = findParents(relations, new SpaceObject("YOU"));
+    final List<SpaceObject> parentsSanta = findParents(relations, new SpaceObject("SAN"));
 
     for (int i = 0; i < parentsYou.size(); i++) {
       final SpaceObject youParent = parentsYou.get(i);
       for (int j = 0; j < parentsSanta.size(); j++) {
         final SpaceObject santaParent = parentsSanta.get(j);
         if (youParent.equals(santaParent)) {
-          return i + j - 2;
+          return i + j;
         }
       }
     }
@@ -64,11 +53,10 @@ public class Day06 {
   }
 
   private static List<SpaceObject> findParents(
-      final Set<OrbitRelation> relations, final String objectName) {
-    final SpaceObject spaceObject = new SpaceObject(objectName);
-    Optional<SpaceObject> maybeCurrent = Optional.of(spaceObject);
+          final Set<OrbitRelation> relations, final SpaceObject spaceObject) {
     final List<SpaceObject> parents = new ArrayList<>();
-    parents.add(spaceObject);
+
+    Optional<SpaceObject> maybeCurrent = Optional.of(spaceObject);
     while (maybeCurrent.isPresent()) {
       final SpaceObject current = maybeCurrent.get();
       maybeCurrent =
@@ -78,6 +66,7 @@ public class Day06 {
               .map(OrbitRelation::orbitCenter);
       maybeCurrent.ifPresent(parents::add);
     }
+
     return parents;
   }
 
