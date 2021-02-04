@@ -23,7 +23,27 @@ class Day06Test {
         J)K
         K)L
         """;
-
     assertEquals(42, countOrbits(parse(input)));
+  }
+
+  @Test
+  void part2Example() {
+    final String input =
+        """
+        COM)B
+        B)C
+        C)D
+        D)E
+        E)F
+        B)G
+        G)H
+        D)I
+        E)J
+        J)K
+        K)L
+        K)YOU
+        I)SAN
+        """;
+    assertEquals(4, findMinNumberOfRequiredTransfers(parse(input)));
   }
 }
