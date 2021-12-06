@@ -1,13 +1,13 @@
 package us.byteb.advent.year2019;
 
+import static java.util.stream.Collectors.toSet;
+import static us.byteb.advent.Utils.readFileFromResources;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toSet;
-import static us.byteb.advent.Utils.readFileFromResources;
 
 public class Day06 {
 
@@ -53,7 +53,7 @@ public class Day06 {
   }
 
   private static List<SpaceObject> findParents(
-          final Set<OrbitRelation> relations, final SpaceObject spaceObject) {
+      final Set<OrbitRelation> relations, final SpaceObject spaceObject) {
     final List<SpaceObject> parents = new ArrayList<>();
 
     Optional<SpaceObject> maybeCurrent = Optional.of(spaceObject);
