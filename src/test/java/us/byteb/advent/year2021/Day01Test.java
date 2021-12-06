@@ -25,6 +25,11 @@ class Day01Test {
 
   @Test
   void partOneExample() {
-    assertEquals(7L, countIncreases(part1ExampleDate));
+    assertEquals(7L, countIncreases(part1ExampleDate, 1));
   }
+
+	@Test
+	void partTwoExample() {
+		assertEquals(5L, countIncreases(part1ExampleDate, 3));
+	}
 }
