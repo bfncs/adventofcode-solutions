@@ -28,8 +28,8 @@ class Day01Test {
     assertEquals(7L, countIncreases(part1ExampleDate, 1));
   }
 
-	@Test
-	void partTwoExample() {
-		assertEquals(5L, countIncreases(part1ExampleDate, 3));
-	}
+  @Test
+  void partTwoExample() {
+    assertEquals(5L, countIncreases(part1ExampleDate, 3));
+  }
 }
