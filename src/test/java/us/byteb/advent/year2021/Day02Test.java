@@ -1,7 +1,7 @@
 package us.byteb.advent.year2021;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static us.byteb.advent.year2021.Day02.applyCommands;
+import static us.byteb.advent.year2021.Day02.applyCommandsStrategy2;
 import static us.byteb.advent.year2021.Day02.parseInput;
 
 import java.util.List;
@@ -22,7 +22,13 @@ class Day02Test {
 
   @Test
   void part1Example() {
-    final Position finalPosition = applyCommands(example1Input);
+    final Position finalPosition = Day02.applyCommandsStrategy1(example1Input);
     assertEquals(150L, finalPosition.horizontalPos() * finalPosition.depth());
   }
+
+	@Test
+	void part2Example() {
+		final Position finalPosition = applyCommandsStrategy2(example1Input);
+		assertEquals(900L, finalPosition.horizontalPos() * finalPosition.depth());
+	}
 }
