@@ -31,7 +31,8 @@ public class Day02 {
     return applyCommands(commands, (pos, cmd) -> cmd.applyStrategy2(pos));
   }
 
-  private static Position applyCommands(final List<Command> commands, final BiFunction<Position, Command, Position> strategy) {
+  private static Position applyCommands(
+      final List<Command> commands, final BiFunction<Position, Command, Position> strategy) {
     Position position = new Position(0, 0, 0);
 
     for (final Command command : commands) {
@@ -60,6 +61,7 @@ public class Day02 {
     }
 
     Position applyStrategy1(Position position);
+
     Position applyStrategy2(Position position);
 
     record Forward(long movement) implements Command {
@@ -67,9 +69,13 @@ public class Day02 {
       public Position applyStrategy1(final Position position) {
         return new Position(position.horizontalPos() + movement, position.depth(), position.aim());
       }
+
       @Override
       public Position applyStrategy2(final Position position) {
-        return new Position(position.horizontalPos() + movement, position.depth() + (position.aim() * movement), position.aim());
+        return new Position(
+            position.horizontalPos() + movement,
+            position.depth() + (position.aim() * movement),
+            position.aim());
       }
     }
 
@@ -78,6 +84,7 @@ public class Day02 {
       public Position applyStrategy1(final Position position) {
         return new Position(position.horizontalPos(), position.depth() + movement, position.aim());
       }
+
       @Override
       public Position applyStrategy2(final Position position) {
         return new Position(position.horizontalPos(), position.depth(), position.aim() + movement);
@@ -89,6 +96,7 @@ public class Day02 {
       public Position applyStrategy1(final Position position) {
         return new Position(position.horizontalPos(), position.depth() - movement, position.aim());
       }
+
       @Override
       public Position applyStrategy2(final Position position) {
         return new Position(position.horizontalPos(), position.depth(), position.aim() - movement);

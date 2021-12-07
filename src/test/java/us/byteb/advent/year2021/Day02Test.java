@@ -26,9 +26,9 @@ class Day02Test {
     assertEquals(150L, finalPosition.horizontalPos() * finalPosition.depth());
   }
 
-	@Test
-	void part2Example() {
-		final Position finalPosition = applyCommandsStrategy2(example1Input);
-		assertEquals(900L, finalPosition.horizontalPos() * finalPosition.depth());
-	}
+  @Test
+  void part2Example() {
+    final Position finalPosition = applyCommandsStrategy2(example1Input);
+    assertEquals(900L, finalPosition.horizontalPos() * finalPosition.depth());
+  }
 }
