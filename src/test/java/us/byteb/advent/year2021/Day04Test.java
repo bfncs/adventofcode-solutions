@@ -32,6 +32,11 @@ class Day04Test {
 
   @Test
   void part1Example() {
-    assertEquals(4512L, scoreOfFirstWinningBoard(parseInput(part1ExampleInput)));
+    assertEquals(4512L, findFirstWinningBoard(parseInput(part1ExampleInput)).score());
+  }
+
+  @Test
+  void part2Example() {
+    assertEquals(4512L, findFirstWinningBoard(parseInput(part1ExampleInput)).score());
   }
 }

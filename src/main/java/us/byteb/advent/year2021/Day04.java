@@ -13,7 +13,8 @@ public class Day04 {
   public static void main(String[] args) throws IOException {
     final BingoInput input = parseInput(readFileFromResources("year2021/day04.txt"));
 
-    System.out.println("Part 1: " + scoreOfFirstWinningBoard(input));
+    System.out.println("Part 1: " + findFirstWinningBoard(input).score());
+    System.out.println("Part 2: " + findLastWinningBoard(input).score());
   }
 
   public static BingoInput parseInput(final String input) {
@@ -36,11 +37,6 @@ public class Day04 {
     return new BingoInput(drawnNumbers, boards);
   }
 
-  public static long scoreOfFirstWinningBoard(final BingoInput input) {
-    final BingoResult result = findFirstWinningBoard(input);
-    return result.firstWinningBoard().score(result.drawnNumbers());
-  }
-
   public static BingoResult findFirstWinningBoard(final BingoInput input) {
     for (int i = 0; i < input.drawnNumbers().size(); i++) {
       final List<Integer> drawnNumbers = input.drawnNumbers().subList(0, i);
@@ -54,7 +50,30 @@ public class Day04 {
     throw new IllegalStateException("No winning board found!");
   }
 
-  record BingoResult(BingoBoard firstWinningBoard, List<Integer> drawnNumbers) {}
+  public static BingoResult findLastWinningBoard(final BingoInput input) {
+    List<BingoBoard> boards = input.boards();
+
+    for (int i = 0; i < input.drawnNumbers().size(); i++) {
+      final List<Integer> drawnNumbers = input.drawnNumbers().subList(0, i);
+      final List<BingoBoard> remainingBoards =
+          boards.stream().filter(board -> !board.isWinning(drawnNumbers)).toList();
+
+      if (remainingBoards.size() == 0) {
+        final BingoBoard lastWonBoard = boards.get(boards.size() - 1);
+        return new BingoResult(lastWonBoard, drawnNumbers);
+      }
+
+      boards = remainingBoards;
+    }
+
+    return null;
+  }
+
+  record BingoResult(BingoBoard winningBoard, List<Integer> drawnNumbers) {
+    public long score() {
+      return winningBoard.score(drawnNumbers);
+    }
+  }
 
   record BingoInput(List<Integer> drawnNumbers, List<BingoBoard> boards) {}
 
