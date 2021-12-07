@@ -1,8 +1,7 @@
 package us.byteb.advent.year2021;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.year2021.Day05.numberOfPointsWhereAtLeastTwoHorizontalAndVerticalLinesOverlap;
-import static us.byteb.advent.year2021.Day05.parseInput;
+import static us.byteb.advent.year2021.Day05.*;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -28,5 +27,11 @@ class Day05Test {
   void part1Example() {
     final List<Line> lines = parseInput(exampleInput);
     assertEquals(5L, numberOfPointsWhereAtLeastTwoHorizontalAndVerticalLinesOverlap(lines));
+  }
+
+  @Test
+  void part2Example() {
+    final List<Line> lines = parseInput(exampleInput);
+    assertEquals(12L, numberOfPointsWhereAtLeastTwoLinesOverlap(lines));
   }
 }

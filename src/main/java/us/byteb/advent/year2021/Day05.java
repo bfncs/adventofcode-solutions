@@ -3,6 +3,7 @@ package us.byteb.advent.year2021;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ public class Day05 {
 
     System.out.println(
         "Part 1: " + numberOfPointsWhereAtLeastTwoHorizontalAndVerticalLinesOverlap(input));
+
+    System.out.println("Part 2: " + numberOfPointsWhereAtLeastTwoLinesOverlap(input));
   }
 
   public static List<Line> parseInput(final String input) {
@@ -24,9 +27,14 @@ public class Day05 {
   public static long numberOfPointsWhereAtLeastTwoHorizontalAndVerticalLinesOverlap(
       final List<Line> lines) {
     final List<Line> horizontalOrVerticalLines =
-        lines.stream().filter(Line::isHorizontalOrVertical).toList();
+        lines.stream().filter(line -> line.isHorizontal() || line.isVertical()).toList();
     final Field field = Field.fromLines(horizontalOrVerticalLines);
 
+    return field.numberOfPointsWithMinLines(2);
+  }
+
+  public static long numberOfPointsWhereAtLeastTwoLinesOverlap(final List<Line> lines) {
+    final Field field = Field.fromLines(lines);
     return field.numberOfPointsWithMinLines(2);
   }
 
@@ -51,25 +59,50 @@ public class Day05 {
       return new Line(Point.parse(points[0]), Point.parse(points[1]));
     }
 
-    public boolean isHorizontalOrVertical() {
-      return start.x() == end.x() || start.y() == end.y();
+    boolean isHorizontal() {
+      return start.x() == end.x();
     }
 
-    public List<Point> resolvePoints() {
-      if (start.x() == end.x()) {
+    boolean isVertical() {
+      return start.y() == end.y();
+    }
+
+    boolean isDiagonal45Degrees() {
+      return Math.abs(start.x() - end.x()) == Math.abs(start.y() - end.y());
+    }
+
+    List<Point> resolvePoints() {
+      if (isHorizontal()) {
         final int lower = Math.min(start.y(), end.y());
         final int upper = Math.max(start.y(), end.y());
         return IntStream.rangeClosed(lower, upper).mapToObj(y -> new Point(start.x(), y)).toList();
       }
 
-      if (start.y() == end.y()) {
+      if (isVertical()) {
         final int lower = Math.min(start.x(), end.x());
         final int upper = Math.max(start.x(), end.x());
         return IntStream.rangeClosed(lower, upper).mapToObj(x -> new Point(x, start.y())).toList();
       }
 
+      if (isDiagonal45Degrees()) {
+        final int firstY = Math.min(start.y(), end.y());
+        final int secondY = Math.max(start.y(), end.y());
+        final int firstX = firstY == start.y() ? start.x() : end.x();
+        final int secondX = firstY == start.y() ? end.x() : start.x();
+        final int stepX = firstX < secondX ? 1 : -1;
+
+        final List<Point> points = new ArrayList<>();
+        int x = firstX;
+        for (int y = firstY; y <= secondY; y++) {
+          points.add(new Point(x, y));
+          x += stepX;
+        }
+
+        return points;
+      }
+
       throw new UnsupportedOperationException(
-          "Resolving points of diagonal lines not implemented yet!");
+          "Resolving points of line from %s to %s not implemented yet!".formatted(start, end));
     }
   }
 
