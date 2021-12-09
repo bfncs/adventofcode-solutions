@@ -1,8 +1,7 @@
 package us.byteb.advent.year2021;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.year2021.Day08.countDigitsOneFourSevenEight;
-import static us.byteb.advent.year2021.Day08.parseInput;
+import static us.byteb.advent.year2021.Day08.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +24,19 @@ class Day08Test {
   @Test
   void part1Example() {
     assertEquals(26, countDigitsOneFourSevenEight(parseInput(exampleInput)));
+  }
+
+  @Test
+  void part2Example() {
+    assertEquals(61229L, sumOfDecodedOutputValues(parseInput(exampleInput)));
+  }
+
+  @Test
+  void decodeExampleOutputValue() {
+    final PuzzleInput input =
+        parseInput(
+                "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
+            .get(0);
+    assertEquals(5353L, decodeOutputValue(input));
   }
 }
