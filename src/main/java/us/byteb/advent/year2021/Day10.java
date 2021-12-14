@@ -11,6 +11,11 @@ public class Day10 {
     final List<List<Token>> input = parseInput(readFileFromResources("year2021/day10.txt"));
 
     System.out.println("Part 1: " + totalSyntaxErrorScore(input));
+    System.out.println("Part 2: " + autocompleteScore(input));
+  }
+
+  static List<List<Token>> parseInput(final String input) {
+    return input.lines().map(Day10::tokenize).toList();
   }
 
   static long totalSyntaxErrorScore(final List<List<Token>> input) {
@@ -26,6 +31,38 @@ public class Day10 {
                   default -> throw new IllegalStateException();
                 })
         .sum();
+  }
+
+  static long autocompleteScore(final List<List<Token>> input) {
+    final List<Long> scores =
+        input.stream()
+            .map(Day10::findMissingClosingTokens)
+            .filter(missingTokens -> missingTokens.size() > 0)
+            .map(
+                missingTokens -> {
+                  long score = 0;
+                  for (final Token token : missingTokens) {
+                    long tokenScore =
+                        switch (token) {
+                          case RIGHT_PAREN -> 1;
+                          case RIGHT_BRACKET -> 2;
+                          case RIGHT_BRACE -> 3;
+                          case RIGHT_CHEVRON -> 4;
+                          default -> throw new IllegalStateException();
+                        };
+                    score = (score * 5) + tokenScore;
+                  }
+
+                  return score;
+                })
+            .sorted()
+            .toList();
+
+    return scores.get(scores.size() / 2);
+  }
+
+  static List<Token> tokenize(final String line) {
+    return line.chars().mapToObj(c -> Token.parse(c).orElseThrow()).toList();
   }
 
   static Optional<Token> findFirstIllegalToken(final List<Token> input) {
@@ -45,12 +82,26 @@ public class Day10 {
     return Optional.empty();
   }
 
-  static List<List<Token>> parseInput(final String input) {
-    return input.lines().map(Day10::tokenizeLine).toList();
-  }
+  static List<Token> findMissingClosingTokens(final List<Token> input) {
+    final Stack<Token> stack = new Stack<>();
+    for (final Token token : input) {
+      if (token.matchingOpeningToken().isEmpty()) {
+        stack.push(token);
+        continue;
+      }
 
-  static List<Token> tokenizeLine(final String line) {
-    return line.chars().mapToObj(c -> Token.parse(c).orElseThrow()).toList();
+      final Token last = stack.pop();
+      if (last != token.matchingOpeningToken().get()) {
+        return Collections.emptyList();
+      }
+    }
+
+    final List<Token> missingClosingTokens = new ArrayList<>();
+    while (!stack.isEmpty()) {
+      missingClosingTokens.add(stack.pop().matchingClosingToken().orElseThrow());
+    }
+
+    return missingClosingTokens;
   }
 
   enum Token {
@@ -82,6 +133,12 @@ public class Day10 {
 
     public char character() {
       return character;
+    }
+
+    public Optional<Token> matchingClosingToken() {
+      return Arrays.stream(values())
+          .filter(token -> token.matchingOpeningToken().map(t -> this == t).orElse(false))
+          .findFirst();
     }
 
     public Optional<Token> matchingOpeningToken() {
