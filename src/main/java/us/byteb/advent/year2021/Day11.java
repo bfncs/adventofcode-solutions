@@ -12,6 +12,7 @@ public class Day11 {
     final List<List<Octopus>> input = parseInput(readFileFromResources("year2021/day11.txt"));
 
     System.out.println("Part 1: " + steps(input, 100).numFlashes());
+    System.out.println("Part 2: " + findFirstSynchronizedStep(input));
   }
 
   record StepResult(List<List<Octopus>> grid, long numFlashes) {}
@@ -26,6 +27,24 @@ public class Day11 {
     }
 
     return currentStep;
+  }
+
+  static long findFirstSynchronizedStep(final List<List<Octopus>> input) {
+    List<List<Octopus>> grid = resetFlashes(input);
+    long steps = 0;
+    while (true) {
+      steps++;
+      final StepResult nextGrid = step(grid);
+
+      if (nextGrid.grid().stream()
+              .flatMapToInt(row -> row.stream().mapToInt(Octopus::energyLevel))
+              .sum()
+          == 0) {
+        return steps;
+      }
+
+      grid = resetFlashes(nextGrid.grid());
+    }
   }
 
   static List<List<Octopus>> resetFlashes(final List<List<Octopus>> grid) {
