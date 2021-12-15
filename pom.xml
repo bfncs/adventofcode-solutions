@@ -7,6 +7,9 @@
     <groupId>us.byteb.advent</groupId>
     <artifactId>adventofcode-solutions</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <properties>
+        <version.junit>5.8.2</version.junit>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -17,13 +20,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.2</version>
+            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>5.8.2</version>
+            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -33,7 +36,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <release>17</release>
                     <compilerArgs>--enable-preview</compilerArgs>
