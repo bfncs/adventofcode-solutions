@@ -11,19 +11,20 @@ import org.junit.jupiter.api.Test;
 
 class Day12Test {
 
+  private static final String EXAMPLE1 =
+      """
+      start-A
+      start-b
+      A-c
+      A-b
+      b-d
+      A-end
+      b-end
+      """;
+
   @Test
   void part1Example1() {
-    final List<Edge> edges =
-        parseInput(
-            """
-            start-A
-            start-b
-            A-c
-            A-b
-            b-d
-            A-end
-            b-end
-            """);
+    final List<Edge> edges = parseInput(EXAMPLE1);
     final Set<List<Cave>> expectedPaths =
         parsePaths(
             """
@@ -108,6 +109,57 @@ class Day12Test {
                     start-RW
                     """);
     assertEquals(226, allPathsVisitingSmallCavesAtMostOnce(edges).size());
+  }
+
+  @Test
+  void part2Example1() {
+    final List<Edge> edges = parseInput(EXAMPLE1);
+    final Set<List<Cave>> expectedPaths =
+        parsePaths(
+            """
+        start,A,b,A,b,A,c,A,end
+        start,A,b,A,b,A,end
+        start,A,b,A,b,end
+        start,A,b,A,c,A,b,A,end
+        start,A,b,A,c,A,b,end
+        start,A,b,A,c,A,c,A,end
+        start,A,b,A,c,A,end
+        start,A,b,A,end
+        start,A,b,d,b,A,c,A,end
+        start,A,b,d,b,A,end
+        start,A,b,d,b,end
+        start,A,b,end
+        start,A,c,A,b,A,b,A,end
+        start,A,c,A,b,A,b,end
+        start,A,c,A,b,A,c,A,end
+        start,A,c,A,b,A,end
+        start,A,c,A,b,d,b,A,end
+        start,A,c,A,b,d,b,end
+        start,A,c,A,b,end
+        start,A,c,A,c,A,b,A,end
+        start,A,c,A,c,A,b,end
+        start,A,c,A,c,A,end
+        start,A,c,A,end
+        start,A,end
+        start,b,A,b,A,c,A,end
+        start,b,A,b,A,end
+        start,b,A,b,end
+        start,b,A,c,A,b,A,end
+        start,b,A,c,A,b,end
+        start,b,A,c,A,c,A,end
+        start,b,A,c,A,end
+        start,b,A,end
+        start,b,d,b,A,c,A,end
+        start,b,d,b,A,end
+        start,b,d,b,end
+        start,b,end
+          """);
+    final Set<List<Cave>> result = allPathsVisitingSmallCavesAtMostTwice(edges);
+    System.out.println(result.size());
+    for (final List<Cave> caves : result) {
+      System.out.println(caves.stream().map(Cave::name).collect(Collectors.joining(",")));
+    }
+    assertEquals(expectedPaths, result);
   }
 
   private static Set<List<Cave>> parsePaths(final String input) {

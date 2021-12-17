@@ -5,6 +5,7 @@ import static us.byteb.advent.Utils.readFileFromResources;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,15 +15,29 @@ public class Day12 {
     final List<Edge> input = parseInput(readFileFromResources("year2021/day12.txt"));
 
     System.out.println("Part 1: " + allPathsVisitingSmallCavesAtMostOnce(input).size());
+    System.out.println("Part 2: " + allPathsVisitingSmallCavesAtMostTwice(input).size());
   }
 
   static Set<List<Cave>> allPathsVisitingSmallCavesAtMostOnce(final List<Edge> edges) {
-    return allPathsVisitingSmallCavesAtMostOnce(edges, List.of(new Cave("start")));
+    return paths(edges, List.of(new Cave("start")), 1);
   }
 
-  private static Set<List<Cave>> allPathsVisitingSmallCavesAtMostOnce(
-      final List<Edge> edges, final List<Cave> history) {
+  static Set<List<Cave>> allPathsVisitingSmallCavesAtMostTwice(final List<Edge> edges) {
+    return paths(edges, List.of(new Cave("start")), 2);
+  }
+
+  private static Set<List<Cave>> paths(
+      final List<Edge> edges, final List<Cave> history, final int maxVisitsToASingleSmallCaves) {
     final Cave currentCave = history.get(history.size() - 1);
+
+    final boolean hasVisitedASingleSmallCaveTwice =
+        history.stream()
+            .filter(c -> !c.isBig())
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+            .entrySet()
+            .stream()
+            .anyMatch(entry -> entry.getValue() > 1);
+
     final Set<Cave> possibleNextCaves =
         edges.stream()
             .flatMap(
@@ -35,7 +50,20 @@ public class Day12 {
                     return Stream.empty();
                   }
                 })
-            .filter(cave -> cave.isBig() || !history.contains(cave))
+            .filter(
+                cave -> {
+                  if (cave.name().equals("start") || cave.name().equals("end")) {
+                    return !history.contains(cave);
+                  }
+
+                  if (cave.isBig()) {
+                    return true;
+                  }
+
+                  return !history.contains(cave)
+                      || (!hasVisitedASingleSmallCaveTwice
+                          && countNumberOfVisits(history, cave) < maxVisitsToASingleSmallCaves);
+                })
             .collect(Collectors.toSet());
 
     return possibleNextCaves.stream()
@@ -46,9 +74,13 @@ public class Day12 {
               if (cave.name().equals("end")) {
                 return Stream.of(nextHistory);
               }
-              return allPathsVisitingSmallCavesAtMostOnce(edges, nextHistory).stream();
+              return paths(edges, nextHistory, maxVisitsToASingleSmallCaves).stream();
             })
         .collect(Collectors.toSet());
+  }
+
+  private static long countNumberOfVisits(final List<Cave> history, final Cave cave) {
+    return history.stream().filter(cave::equals).count();
   }
 
   static List<Edge> parseInput(final String input) {
