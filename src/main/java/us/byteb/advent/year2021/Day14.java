@@ -3,10 +3,7 @@ package us.byteb.advent.year2021;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Day14 {
@@ -14,57 +11,77 @@ public class Day14 {
   public static void main(String[] args) throws IOException {
     final PuzzleInput input = parseInput(readFileFromResources("year2021/day14.txt"));
 
-    System.out.println("Part 1: " + solvePart1(applyRules(input, 10)));
+    System.out.println("Part 1: " + mostCommonsMinusLeastCommonCharacter(applyRules(input, 10)));
+    System.out.println("Part 2: " + mostCommonsMinusLeastCommonCharacter(applyRules(input, 40)));
   }
 
-  static long solvePart1(final String input) {
-    final Map<Character, Long> histogram = charCountHistogram(input);
-    final Long mostCommonCount =
-        histogram.entrySet().stream()
-            .max((o1, o2) -> (int) (o1.getValue() - o2.getValue()))
-            .map(Map.Entry::getValue)
-            .orElseThrow();
-    final Long leastCommonCount =
-        histogram.entrySet().stream()
-            .min((o1, o2) -> (int) (o1.getValue() - o2.getValue()))
-            .map(Map.Entry::getValue)
-            .orElseThrow();
+  static long mostCommonsMinusLeastCommonCharacter(final Map<Character, Long> histogram) {
+    final Comparator<Map.Entry<Character, Long>> comparator =
+        (o1, o2) ->
+            o1.getValue().equals(o2.getValue()) ? 0 : o1.getValue() > o2.getValue() ? 1 : -1;
+
+    final long mostCommonCount =
+        histogram.entrySet().stream().max(comparator).map(Map.Entry::getValue).orElseThrow();
+    final long leastCommonCount =
+        histogram.entrySet().stream().min(comparator).map(Map.Entry::getValue).orElseThrow();
 
     return mostCommonCount - leastCommonCount;
   }
 
-  private static Map<Character, Long> charCountHistogram(final String input) {
-    return input
-        .chars()
-        .mapToObj(c -> (char) c)
-        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+  static Map<Character, Long> applyRules(final PuzzleInput input, final int steps) {
+    final Map<String, Long> pairCountHistogram =
+        applyRules(
+            toPairCountHistogram(input.polymerTemplate()), input.pairInsertionRules(), steps);
+    return toCharCountHistogram(pairCountHistogram);
   }
 
-  static String applyRules(final PuzzleInput input, final int steps) {
-    return applyRules(input.polymerTemplate(), input.pairInsertionRules(), steps);
-  }
-
-  static String applyRules(
-      final String polymerTemplate,
+  private static Map<String, Long> applyRules(
+      final Map<String, Long> input,
       final Set<PairInsertionRule> pairInsertionRules,
       final int steps) {
-    final StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < (polymerTemplate.length() - 1); i++) {
-      sb.append(polymerTemplate.charAt(i));
+    final Map<String, Long> result = new HashMap<>();
 
-      final String pair = polymerTemplate.substring(i, i + 2);
-      pairInsertionRules.stream()
-          .filter(rule -> rule.pair().equals(pair))
-          .findAny()
-          .ifPresent(
-              pairInsertionRule -> {
-                sb.append(pairInsertionRule.elementToBeInserted());
-              });
-    }
-    sb.append(polymerTemplate.charAt(polymerTemplate.length() - 1));
+    input.forEach(
+        (pair, pairCount) -> {
+          final Optional<PairInsertionRule> maybeMatchingRule =
+              pairInsertionRules.stream().filter(rule -> rule.pair().equals(pair)).findAny();
+          if (maybeMatchingRule.isPresent()) {
+            final PairInsertionRule rule = maybeMatchingRule.get();
 
-    final String result = sb.toString();
+            final String pair1 = rule.pair().substring(0, 1) + rule.elementToBeInserted();
+            result.put(pair1, result.getOrDefault(pair1, 0L) + pairCount);
+            final String pair2 = rule.elementToBeInserted() + rule.pair().substring(1, 2);
+            result.put(pair2, result.getOrDefault(pair2, 0L) + pairCount);
+          } else {
+            result.put(pair, result.getOrDefault(pair, 0L) + pairCount);
+          }
+        });
+
     return steps > 1 ? applyRules(result, pairInsertionRules, steps - 1) : result;
+  }
+
+  private static Map<Character, Long> toCharCountHistogram(
+      final Map<String, Long> pairCountHistogram) {
+    final Map<Character, Long> result = new HashMap<>();
+    pairCountHistogram.forEach(
+        (pair, count) -> {
+          final char countingChar = pair.charAt(0);
+          result.put(countingChar, result.getOrDefault(countingChar, 0L) + count);
+        });
+
+    return result;
+  }
+
+  private static Map<String, Long> toPairCountHistogram(final String input) {
+    final Map<String, Long> result = new HashMap<>();
+
+    for (int i = 0; i < (input.length() - 1); i++) {
+      final String pair = input.substring(i, i + 2);
+      result.put(pair, result.getOrDefault(pair, 0L) + 1);
+    }
+    result.put(input.substring(input.length() - 1), 1L);
+
+    return result;
   }
 
   static PuzzleInput parseInput(final String input) {

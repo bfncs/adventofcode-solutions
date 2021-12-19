@@ -3,6 +3,7 @@ package us.byteb.advent.year2021;
 import static org.junit.jupiter.api.Assertions.*;
 import static us.byteb.advent.year2021.Day14.*;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import us.byteb.advent.year2021.Day14.PuzzleInput;
 
@@ -33,14 +34,21 @@ class Day14Test {
   @Test
   void example1() {
     final PuzzleInput input = parseInput(EXAMPLE);
-    assertEquals("NCNBCHB", applyRules(input, 1));
-    assertEquals("NBCCNBBBCBHCB", applyRules(input, 2));
-    assertEquals("NBBBCNCCNBBNBNBBCHBHHBCHB", applyRules(input, 3));
-    assertEquals("NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB", applyRules(input, 4));
+    assertEquals(1588, mostCommonsMinusLeastCommonCharacter(applyRules(input, 10)));
+  }
 
-    assertEquals(97, applyRules(input, 5).length());
-    assertEquals(3073, applyRules(input, 10).length());
+  @Test
+  void example2() {
+    final PuzzleInput input = parseInput(EXAMPLE);
+    assertEquals(
+        Map.of(
+            'N', 2L,
+            'C', 2L,
+            'B', 2L,
+            'H', 1L),
+        applyRules(input, 1));
 
-    assertEquals(1588, solvePart1(applyRules(input, 10)));
+    assertEquals(1588L, mostCommonsMinusLeastCommonCharacter(applyRules(input, 10)));
+    assertEquals(2188189693529L, mostCommonsMinusLeastCommonCharacter(applyRules(input, 40)));
   }
 }
