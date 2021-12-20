@@ -12,6 +12,9 @@ public class Day15 {
     final List<List<Integer>> input = parseInput(readFileFromResources("year2021/day15.txt"));
 
     System.out.println("Part 1: " + findPathWithLowestTotalRisk(input).totalRisk());
+
+    // This is not correct :-/
+    System.out.println("Part 2: " + findPathWithLowestTotalRisk(repeatGrid(input, 5)).totalRisk());
   }
 
   static Path findPathWithLowestTotalRisk(final List<List<Integer>> grid) {
@@ -35,6 +38,26 @@ public class Day15 {
 
     final Path shortestPath = paths.stream().findFirst().orElseThrow();
     return removeFirstPoint(grid, shortestPath);
+  }
+
+  static List<List<Integer>> repeatGrid(final List<List<Integer>> grid, final int repeatFactor) {
+    final int edgeLength = grid.size();
+    final int nextEdgeLength = edgeLength * repeatFactor;
+    final List<List<Integer>> nextGrid = new ArrayList<>(nextEdgeLength);
+
+    for (int row = 0; row < nextEdgeLength; row++) {
+      final List<Integer> currentRow = new ArrayList<>(nextEdgeLength);
+      for (int col = 0; col < nextEdgeLength; col++) {
+        final int gridValue = grid.get(row % grid.size()).get(col % grid.size());
+        final int shiftValue = (row / edgeLength) + (col / edgeLength);
+        final int nextValue = (gridValue + shiftValue) % 10 + ((gridValue + shiftValue) / 10);
+        currentRow.add(nextValue);
+      }
+
+      nextGrid.add(currentRow);
+    }
+
+    return nextGrid;
   }
 
   private static Set<Path> createInitialPathFromLowerRightPoint(final List<List<Integer>> grid) {
@@ -91,6 +114,22 @@ public class Day15 {
         .lines()
         .map(line -> line.chars().mapToObj(Character::getNumericValue).toList())
         .toList();
+  }
+
+  static String formatPath(final List<List<Integer>> grid, final Path path) {
+    final StringBuilder sb = new StringBuilder();
+    for (int row = 0; row < grid.size(); row++) {
+      for (int col = 0; col < grid.size(); col++) {
+        final String value =
+            (row == 0 && col == 0) || path.points().contains(new Point(row, col))
+                ? "X"
+                : grid.get(row).get(col).toString();
+        sb.append(value);
+      }
+      sb.append("\n");
+    }
+
+    return sb.toString();
   }
 
   record Point(int row, int col) {
