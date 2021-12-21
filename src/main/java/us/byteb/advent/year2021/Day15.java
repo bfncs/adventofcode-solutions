@@ -12,32 +12,57 @@ public class Day15 {
     final List<List<Integer>> input = parseInput(readFileFromResources("year2021/day15.txt"));
 
     System.out.println("Part 1: " + findPathWithLowestTotalRisk(input).totalRisk());
-
-    // This is not correct :-/
     System.out.println("Part 2: " + findPathWithLowestTotalRisk(repeatGrid(input, 5)).totalRisk());
   }
 
   static Path findPathWithLowestTotalRisk(final List<List<Integer>> grid) {
-    Set<Path> paths = createInitialPathFromLowerRightPoint(grid);
+    final Point start = new Point(0, 0);
+    final Point destination = new Point(grid.size() - 1, grid.size() - 1);
 
-    do {
-      final Set<Path> nextPaths = new HashSet<>();
-      for (final Path path : paths) {
-        final Point head = path.points().get(0);
-        if (head.row() > 0) {
-          final Point pointLeft = new Point(head.row() - 1, head.col());
-          addIfCheapestPathCandidate(nextPaths, prependPath(grid, pointLeft, path));
+    final Map<Point, Path> visitedPoints = new HashMap<>();
+    final Map<Point, Path> unvisitedPoints = new HashMap<>();
+    unvisitedPoints.put(start, new Path(List.of(start), 0));
+
+    while (!visitedPoints.containsKey(destination)) {
+      final Point currentPoint =
+          getPointWithLowestRisk(unvisitedPoints);
+      final Path currentPath = unvisitedPoints.get(currentPoint);
+      final Set<Point> neighbours = currentPoint.neighbours();
+
+      for (final Point point : neighbours) {
+        if (visitedPoints.containsKey(point)
+            || point.row() < 0
+            || point.row() > grid.size() - 1
+            || point.col() < 0
+            || point.col() > grid.size() - 1) {
+          continue;
         }
-        if (head.col() > 0) {
-          final Point pointTop = new Point(head.row(), head.col() - 1);
-          addIfCheapestPathCandidate(nextPaths, prependPath(grid, pointTop, path));
+
+        final long currentRisk;
+        final Path unvisitedPath = unvisitedPoints.get(point);
+        if (unvisitedPath == null) {
+          currentRisk = Long.MAX_VALUE;
+        } else {
+          currentRisk = unvisitedPath.totalRisk();
+        }
+
+        final int pointRisk = grid.get(point.row()).get(point.col());
+        final long totalRiskThroughCurrentPoint = pointRisk + currentPath.totalRisk();
+
+        if (totalRiskThroughCurrentPoint < currentRisk) {
+          unvisitedPoints.put(
+              point,
+              new Path(
+                  Stream.concat(currentPath.points().stream(), Stream.of(point)).toList(),
+                  totalRiskThroughCurrentPoint));
         }
       }
-      paths = nextPaths;
-    } while (paths.size() > 1);
 
-    final Path shortestPath = paths.stream().findFirst().orElseThrow();
-    return removeFirstPoint(grid, shortestPath);
+      visitedPoints.put(currentPoint, currentPath);
+      unvisitedPoints.remove(currentPoint);
+    }
+
+    return visitedPoints.get(destination);
   }
 
   static List<List<Integer>> repeatGrid(final List<List<Integer>> grid, final int repeatFactor) {
@@ -60,55 +85,6 @@ public class Day15 {
     return nextGrid;
   }
 
-  private static Set<Path> createInitialPathFromLowerRightPoint(final List<List<Integer>> grid) {
-    Set<Path> paths = new HashSet<>();
-    paths.add(
-        new Path(
-            List.of(new Point(grid.size() - 1, grid.size() - 1)),
-            grid.get(grid.size() - 1).get(grid.size() - 1)));
-    return paths;
-  }
-
-  private static Path removeFirstPoint(final List<List<Integer>> grid, final Path path) {
-    final Point firstPoint = path.points().get(0);
-    return new Path(
-        path.points().subList(1, path.points().size()),
-        path.totalRisk() - grid.get(firstPoint.row()).get(firstPoint.col()));
-  }
-
-  private static void addIfCheapestPathCandidate(final Set<Path> paths, final Path candidate) {
-    final Point candidateHead = candidate.points().get(0);
-    final Optional<Path> existingPath =
-        paths.stream()
-            .filter(
-                p -> {
-                  final Point currentHead = p.points().get(0);
-                  return currentHead.row() == candidateHead.row()
-                      && currentHead.col() == candidateHead.col();
-                })
-            .findAny();
-
-    if (existingPath.isEmpty()) {
-      paths.add(candidate);
-      return;
-    }
-
-    if (candidate.totalRisk() < existingPath.get().totalRisk()) {
-      paths.remove(existingPath.get());
-      paths.add(candidate);
-    }
-  }
-
-  private static Path prependPath(
-      final List<List<Integer>> grid, final Point pointToBePrepended, final Path existingPath) {
-    final List<Point> points =
-        Stream.concat(Stream.of(pointToBePrepended), existingPath.points().stream()).toList();
-    final long totalRisk =
-        existingPath.totalRisk() + grid.get(pointToBePrepended.row()).get(pointToBePrepended.col());
-
-    return new Path(points, totalRisk);
-  }
-
   static List<List<Integer>> parseInput(final String input) {
     return input
         .lines()
@@ -116,23 +92,24 @@ public class Day15 {
         .toList();
   }
 
-  static String formatPath(final List<List<Integer>> grid, final Path path) {
-    final StringBuilder sb = new StringBuilder();
-    for (int row = 0; row < grid.size(); row++) {
-      for (int col = 0; col < grid.size(); col++) {
-        final String value =
-            (row == 0 && col == 0) || path.points().contains(new Point(row, col))
-                ? "X"
-                : grid.get(row).get(col).toString();
-        sb.append(value);
-      }
-      sb.append("\n");
-    }
-
-    return sb.toString();
+  private static Point getPointWithLowestRisk(final Map<Point, Path> points) {
+    return points.entrySet().stream()
+        .min(Comparator.comparing(entry -> entry.getValue().totalRisk()))
+        .map(Map.Entry::getKey)
+        .orElseThrow();
   }
 
   record Point(int row, int col) {
+    public Set<Point> neighbours() {
+      final Set<Point> neighbours = new HashSet<>();
+      neighbours.add(new Point(row - 1, col));
+      neighbours.add(new Point(row + 1, col));
+      neighbours.add(new Point(row, col - 1));
+      neighbours.add(new Point(row, col + 1));
+
+      return neighbours;
+    }
+
     @Override
     public String toString() {
       return "{" + row + ", " + col + "}";

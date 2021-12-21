@@ -82,6 +82,7 @@ class Day15Test {
     assertEquals(
         new Path(
             List.of(
+                new Point(0, 0),
                 new Point(1, 0),
                 new Point(2, 0),
                 new Point(2, 1),
@@ -93,7 +94,7 @@ class Day15Test {
                 new Point(3, 6),
                 new Point(3, 7),
                 new Point(4, 7),
-                new Point(4, 8),
+                new Point(5, 7),
                 new Point(5, 8),
                 new Point(6, 8),
                 new Point(7, 8),
@@ -110,8 +111,6 @@ class Day15Test {
     final List<List<Integer>> repeatedGrid = repeatGrid(grid, 5);
     assertEquals(parseInput(EXAMPLE_REPEATED), repeatedGrid);
 
-    final Path result = findPathWithLowestTotalRisk(repeatedGrid);
-    System.out.println(formatPath(grid, result));
-    assertEquals(315, result.totalRisk());
+    assertEquals(315, findPathWithLowestTotalRisk(repeatedGrid).totalRisk());
   }
 }
