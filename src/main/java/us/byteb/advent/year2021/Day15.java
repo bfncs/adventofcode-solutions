@@ -24,8 +24,7 @@ public class Day15 {
     unvisitedPoints.put(start, new Path(List.of(start), 0));
 
     while (!visitedPoints.containsKey(destination)) {
-      final Point currentPoint =
-          getPointWithLowestRisk(unvisitedPoints);
+      final Point currentPoint = getPointWithLowestRisk(unvisitedPoints);
       final Path currentPath = unvisitedPoints.get(currentPoint);
       final Set<Point> neighbours = currentPoint.neighbours();
 
