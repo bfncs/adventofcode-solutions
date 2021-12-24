@@ -13,9 +13,9 @@ public class Day16 {
 
   public static void main(String[] args) throws IOException {
     final Blob input = Blob.of(readFileFromResources("year2021/day16.txt"));
-
-    final Result result = parse(input);
-    System.out.println("Part 1: " + result.packet().versionSum());
+    final BitsPacket packet = parse(input).packet();
+    System.out.println("Part 1: " + packet.versionSum());
+    System.out.println("Part 2: " + packet.evaluate());
   }
 
   record Result(BitsPacket packet, int nextUnusedBitOffset) {}
@@ -40,6 +40,7 @@ public class Day16 {
       return new Result(new LiteralValue(packetVersion, value), pointer + NUM_BITS_LITERAL_GROUP);
     }
 
+    final OperatorType operatorType = OperatorType.of((int) blob.getBits(offset + 3, 3));
     final long lengthTypeId = blob.getBits(offset + 6, 1);
 
     if (lengthTypeId == 0) {
@@ -54,7 +55,7 @@ public class Day16 {
         pointer = nextResult.nextUnusedBitOffset();
       }
 
-      return new Result(new Operator(packetVersion, subPackets), pointer);
+      return new Result(new Operator(packetVersion, operatorType, subPackets), pointer);
     } else if (lengthTypeId == 1) {
       final long numberOfSubPackets = blob.getBits(offset + 7, 11);
 
@@ -66,7 +67,7 @@ public class Day16 {
         pointer = nextResult.nextUnusedBitOffset();
       }
 
-      return new Result(new Operator(packetVersion, subPackets), pointer);
+      return new Result(new Operator(packetVersion, operatorType, subPackets), pointer);
     }
 
     throw new UnsupportedOperationException();
@@ -122,17 +123,43 @@ public class Day16 {
     }
   }
 
+  enum OperatorType {
+    SUM,
+    PRODUCT,
+    MINIMUM,
+    MAXIMUM,
+    GREATER_THAN,
+    LESS_THAN,
+    EQUAL_TO;
+
+    static OperatorType of(final int typeId) {
+      return switch (typeId) {
+        case 0 -> SUM;
+        case 1 -> PRODUCT;
+        case 2 -> MINIMUM;
+        case 3 -> MAXIMUM;
+        case 5 -> GREATER_THAN;
+        case 6 -> LESS_THAN;
+        case 7 -> EQUAL_TO;
+        default -> throw new UnsupportedOperationException();
+      };
+    }
+  }
+
   interface BitsPacket {
     int packetVersion();
 
     long versionSum();
 
-    static LiteralValue lit(int packetVersion, long value) {
+    long evaluate();
+
+    static LiteralValue lit(final int packetVersion, final long value) {
       return new LiteralValue(packetVersion, value);
     }
 
-    static Operator op(int packetVersion, BitsPacket... subPackets) {
-      return new Operator(packetVersion, Arrays.asList(subPackets));
+    static Operator op(
+        final int packetVersion, final OperatorType type, final BitsPacket... subPackets) {
+      return new Operator(packetVersion, type, Arrays.asList(subPackets));
     }
 
     record LiteralValue(int packetVersion, long value) implements BitsPacket {
@@ -140,12 +167,34 @@ public class Day16 {
       public long versionSum() {
         return packetVersion;
       }
+
+      @Override
+      public long evaluate() {
+        return value;
+      }
     }
 
-    record Operator(int packetVersion, List<BitsPacket> subPackets) implements BitsPacket {
+    record Operator(int packetVersion, OperatorType type, List<BitsPacket> subPackets)
+        implements BitsPacket {
       @Override
       public long versionSum() {
         return packetVersion + subPackets.stream().mapToLong(BitsPacket::versionSum).sum();
+      }
+
+      @Override
+      public long evaluate() {
+        return switch (type) {
+          case SUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).sum();
+          case PRODUCT -> subPackets().stream()
+              .mapToLong(BitsPacket::evaluate)
+              .reduce((a, b) -> a * b)
+              .orElseThrow();
+          case MINIMUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).min().orElseThrow();
+          case MAXIMUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).max().orElseThrow();
+          case GREATER_THAN -> subPackets.get(0).evaluate() > subPackets.get(1).evaluate() ? 1 : 0;
+          case LESS_THAN -> subPackets.get(0).evaluate() < subPackets.get(1).evaluate() ? 1 : 0;
+          case EQUAL_TO -> subPackets.get(0).evaluate() == subPackets.get(1).evaluate() ? 1 : 0;
+        };
       }
     }
   }
