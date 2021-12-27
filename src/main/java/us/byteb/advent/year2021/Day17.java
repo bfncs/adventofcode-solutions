@@ -3,52 +3,66 @@ package us.byteb.advent.year2021;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Day17 {
 
   public static void main(String[] args) throws IOException {
     final TargetArea targetArea = TargetArea.parse(readFileFromResources("year2021/day17.txt"));
-    System.out.println("Part 1: " + findInitialVelocityWithMaxYPosition(targetArea));
+    System.out.println("Part 1: " + findInitialVelocityWithMaxYPosition(targetArea).maxYPosition());
+    System.out.println("Part 2: " + findResults(targetArea).size());
   }
 
   public static Result findInitialVelocityWithMaxYPosition(final TargetArea targetArea) {
-    Result result = new Result(0, 0, Integer.MIN_VALUE);
+    return findResults(targetArea).entrySet().stream()
+        .max(Map.Entry.comparingByValue())
+        .map(entry -> new Result(entry.getKey(), entry.getValue()))
+        .orElseThrow();
+  }
 
-    for (int xInitialVelocity = 1; xInitialVelocity <= targetArea.xMax; xInitialVelocity++) {
-      int xVelocity = xInitialVelocity;
-      int xPos = 0;
-      while (xVelocity > 0) {
-        xPos += xVelocity;
-        xVelocity--;
-        if (xPos < targetArea.xMin() || xPos > targetArea.xMax()) continue;
+  record Result(Velocity velocity, int maxYPosition) {}
 
-        final int maxYInitialValue =
-            Math.max(Math.abs(targetArea.yMin()), Math.abs(targetArea.yMax));
-        for (int yInitialVelocity = 1; yInitialVelocity <= maxYInitialValue; yInitialVelocity++) {
-          int yVelocity = yInitialVelocity;
-          int yPos = 0;
+  public static Map<Velocity, Integer> findResults(final TargetArea targetArea) {
+    final Map<Velocity, Integer> results = new HashMap<>();
 
-          int yMax = Integer.MIN_VALUE;
-          while (yPos >= targetArea.yMin()) {
-            yPos = yPos + yVelocity;
-            yMax = Math.max(yMax, yPos);
-            yVelocity--;
-            if (yPos >= targetArea.yMin() && yPos <= targetArea.yMax()) {
-              if (yMax > result.maxYPosition) {
-                result = new Result(xInitialVelocity, yInitialVelocity, yMax);
-              }
-            }
+    for (int initVelocityX = 1; initVelocityX <= targetArea.xMax(); initVelocityX++) {
+      final int maxInitialValueY = Math.max(Math.abs(targetArea.yMin()), Math.abs(targetArea.yMax));
+      for (int initVelocityY = -maxInitialValueY;
+          initVelocityY <= maxInitialValueY;
+          initVelocityY++) {
+
+        int posX = 0;
+        int posY = 0;
+        int maxPosY = Integer.MIN_VALUE;
+        int velocityX = initVelocityX;
+        int velocityY = initVelocityY;
+
+        while (posY >= targetArea.yMin()) {
+          posX += velocityX;
+          posY += velocityY;
+          maxPosY = Math.max(maxPosY, posY);
+          velocityX = velocityX == 0 ? 0 : velocityX - 1;
+          velocityY--;
+
+          if (posX >= targetArea.xMin()
+              && posX <= targetArea.xMax()
+              && posY >= targetArea.yMin()
+              && posY <= targetArea.yMax()) {
+            results.put(new Velocity(initVelocityX, initVelocityY), maxPosY);
           }
         }
       }
     }
 
-    return result;
+    return results;
   }
 
-  record Result(int velocityX, int velocityY, int maxYPosition) {}
+  record Velocity(int velocityX, int velocityY) {
+    @Override
+    public String toString() {
+      return "(" + velocityX + "," + velocityY + ')';
+    }
+  }
 
   record TargetArea(int xMin, int xMax, int yMin, int yMax) {
 
