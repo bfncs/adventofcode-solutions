@@ -12,6 +12,8 @@ public class Day18 {
   public static void main(String[] args) throws IOException {
     final String input = readFileFromResources("year2021/day18.txt");
     System.out.println("Part 1: " + SnailfishNumber.sum(parseInput(input)).magnitude());
+    System.out.println(
+        "Part 2: " + SnailfishNumber.largestMagnitudeOfAnySumOfTwo(parseInput(input)));
   }
 
   static List<SnailfishNumber> parseInput(final String input) {
@@ -79,8 +81,10 @@ public class Day18 {
 
     SnailfishNumber reduce();
 
+    SnailfishNumber copy();
+
     static SnailfishNumber sum(final SnailfishNumber a, final SnailfishNumber b) {
-      return new Node(a, b).reduce();
+      return new Node(a.copy(), b.copy()).reduce();
     }
 
     static SnailfishNumber sum(List<SnailfishNumber> snailfishNumbers) {
@@ -88,6 +92,20 @@ public class Day18 {
 
       for (int i = 1; i < snailfishNumbers.size(); i++) {
         result = sum(result, snailfishNumbers.get(i));
+      }
+
+      return result;
+    }
+
+    static long largestMagnitudeOfAnySumOfTwo(List<SnailfishNumber> snailfishNumbers) {
+      long result = Long.MIN_VALUE;
+
+      for (final SnailfishNumber first : snailfishNumbers) {
+        for (final SnailfishNumber second : snailfishNumbers) {
+          if (first.equals(second)) continue;
+          final long sum = SnailfishNumber.sum(first, second).magnitude();
+          result = Math.max(result, sum);
+        }
       }
 
       return result;
@@ -130,6 +148,11 @@ public class Day18 {
         } while (actionApplied);
 
         return this;
+      }
+
+      @Override
+      public SnailfishNumber copy() {
+        return new Node(left.copy(), right.copy());
       }
 
       @Override
@@ -310,6 +333,11 @@ public class Day18 {
       @Override
       public SnailfishNumber reduce() {
         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public SnailfishNumber copy() {
+        return new Leaf(value);
       }
 
       @Override
