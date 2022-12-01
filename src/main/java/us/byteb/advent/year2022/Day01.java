@@ -39,9 +39,12 @@ public class Day01 {
   }
 
   static long sumMaxNCalories(final Collection<Elf> elves, final int n) {
-    final List<Long> longs =
-        elves.stream().map(Elf::totalCalories).sorted(Comparator.reverseOrder()).limit(n).toList();
-    return longs.stream().mapToLong(x -> x).sum();
+    return elves.stream()
+        .map(Elf::totalCalories)
+        .sorted(Comparator.reverseOrder())
+        .limit(n)
+        .mapToLong(x -> x)
+        .sum();
   }
 
   record Elf(List<Long> calories) {
