@@ -10,16 +10,19 @@ class Day01Test {
 
   @Test
   void partOneExample() {
-    final Position result1 = followInstructions(parseInput("R2, L3"));
-    assertEquals(new Position(3, 2, NORTH), result1);
-    assertEquals(5, result1.distanceToOrigin());
+    final Location result1 = followInstructions(parseInput("R2, L3"));
+    assertEquals(new Position(3, 2), result1.position());
+    assertEquals(NORTH, result1.direction());
+    assertEquals(5, result1.position().distanceToOrigin());
 
-    final Position result2 = followInstructions(parseInput("R2, R2, R2"));
-    assertEquals(new Position(-2, 0, WEST), result2);
-    assertEquals(2, result2.distanceToOrigin());
+    final Location result2 = followInstructions(parseInput("R2, R2, R2"));
+    assertEquals(new Position(-2, 0), result2.position());
+    assertEquals(WEST, result2.direction());
+    assertEquals(2, result2.position().distanceToOrigin());
 
-    final Position result3 = followInstructions(parseInput("R5, L5, R5, R3"));
-    assertEquals(new Position(2, 10, SOUTH), result3);
-    assertEquals(12, result3.distanceToOrigin());
+    final Location result3 = followInstructions(parseInput("R5, L5, R5, R3"));
+    assertEquals(new Position(2, 10), result3.position());
+    assertEquals(SOUTH, result3.direction());
+    assertEquals(12, result3.position().distanceToOrigin());
   }
 }
