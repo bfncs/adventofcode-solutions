@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static us.byteb.advent.year2020.Day15.findNumber;
 import static us.byteb.advent.year2020.Day15.parseInput;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 class Day15Test {
 
   @ParameterizedTest
+  @Disabled("expensive")
   @CsvSource({
     "'0,3,6',436,2020",
     "'1,3,2',1,2020",
