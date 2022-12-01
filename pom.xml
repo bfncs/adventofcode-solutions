@@ -7,9 +7,18 @@
     <groupId>us.byteb.advent</groupId>
     <artifactId>adventofcode-solutions</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <properties>
-        <version.junit>5.8.2</version.junit>
-    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.9.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -19,14 +28,12 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${version.junit}</version>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${version.junit}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -36,7 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
                     <release>17</release>
                     <compilerArgs>--enable-preview</compilerArgs>
@@ -48,12 +55,13 @@
                 <version>2.22.2</version>
                 <configuration>
                     <argLine>--enable-preview</argLine>
+                    <parallel>classes</parallel>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.17.6</version>
+                <version>2.28.0</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
