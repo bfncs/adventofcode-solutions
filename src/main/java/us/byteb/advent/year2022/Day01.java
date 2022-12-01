@@ -6,6 +6,7 @@ import static us.byteb.advent.Utils.readFileFromResources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 public class Day01 {
@@ -14,19 +15,19 @@ public class Day01 {
     final List<Elf> input = parseInput(readFileFromResources("year2022/day01.txt"));
 
     System.out.println("Part 1: " + findMaxCalories(input));
+    System.out.println("Part 2: " + sumMaxNCalories(input, 3));
   }
 
   static List<Elf> parseInput(final String input) {
     final List<String> lines = input.lines().toList();
     final List<Elf> result = new ArrayList<>();
     List<Long> currentCalories = new ArrayList<>();
-    for (int i = 0; i < lines.size(); i++) {
-      final String line = lines.get(i);
-      if (i == (lines.size() - 1) || isBlank(line)) {
+    for (int i = 0; i <= lines.size(); i++) {
+      if (i == (lines.size()) || isBlank(lines.get(i))) {
         result.add(new Elf(currentCalories));
         currentCalories = new ArrayList<>();
       } else {
-        currentCalories.add(Long.parseLong(line));
+        currentCalories.add(Long.parseLong(lines.get(i)));
       }
     }
 
@@ -35,6 +36,12 @@ public class Day01 {
 
   static long findMaxCalories(final Collection<Elf> elves) {
     return elves.stream().mapToLong(Elf::totalCalories).max().getAsLong();
+  }
+
+  static long sumMaxNCalories(final Collection<Elf> elves, final int n) {
+    final List<Long> longs =
+        elves.stream().map(Elf::totalCalories).sorted(Comparator.reverseOrder()).limit(n).toList();
+    return longs.stream().mapToLong(x -> x).sum();
   }
 
   record Elf(List<Long> calories) {

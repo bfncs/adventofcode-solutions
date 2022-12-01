@@ -1,8 +1,7 @@
 package us.byteb.advent.year2022;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.year2022.Day01.findMaxCalories;
-import static us.byteb.advent.year2022.Day01.parseInput;
+import static us.byteb.advent.year2022.Day01.*;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -32,5 +31,10 @@ class Day01Test {
   @Test
   void partOneExample() {
     assertEquals(24000L, findMaxCalories(part1ExampleDate));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(45000L, sumMaxNCalories(part1ExampleDate, 3));
   }
 }
