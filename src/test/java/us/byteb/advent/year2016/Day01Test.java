@@ -25,4 +25,12 @@ class Day01Test {
     assertEquals(SOUTH, result3.direction());
     assertEquals(12, result3.position().distanceToOrigin());
   }
+
+  @Test
+  void partTwoExample() {
+    final Location result = followInstructionsUntilFirstRevisit(parseInput("R8, R4, R4, R8"));
+    assertEquals(new Position(0, 4), result.position());
+    assertEquals(NORTH, result.direction());
+    assertEquals(4, result.position().distanceToOrigin());
+  }
 }
