@@ -3,17 +3,30 @@ package us.byteb.advent.year2022;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class Day02 {
 
-  public static void main(String[] args) throws IOException {
-    final List<Round> input = parseInput(readFileFromResources("year2022/day02.txt"));
+  static BiFunction<String, String, Round> STRATEGY_PART1 =
+      (opponent, own) -> new Round(Hand.of(opponent), Hand.of(own));
+  static BiFunction<String, String, Round> STRATEGY_PART2 =
+      (opponent, own) -> {
+        final Hand opponentHand = Hand.of(opponent);
+        final Reaction reaction = Reaction.of(own);
+        return new Round(opponentHand, reaction.apply(opponentHand));
+      };
 
-    System.out.println("Part 1: " + totalScore(input));
+  public static void main(String[] args) throws IOException {
+    final String input = readFileFromResources("year2022/day02.txt");
+
+    System.out.println("Part 1: " + totalScore(parseInput(input, STRATEGY_PART1)));
+    System.out.println("Part 2: " + totalScore(parseInput(input, STRATEGY_PART2)));
   }
 
-  static List<Round> parseInput(final String input) {
+  static List<Round> parseInput(
+      final String input, final BiFunction<String, String, Round> handCreatorStrategy) {
     return input
         .lines()
         .map(
@@ -23,7 +36,7 @@ public class Day02 {
                 throw new IllegalStateException("Unexpected input: " + line);
               }
 
-              return new Round(Hand.of(split[0]), Hand.of(split[1]));
+              return handCreatorStrategy.apply(split[0], split[1]);
             })
         .toList();
   }
@@ -86,6 +99,32 @@ public class Day02 {
         case "B", "Y" -> PAPER;
         case "C", "Z" -> SCISSOR;
         default -> throw new IllegalStateException("Unexpected hand: " + s);
+      };
+    }
+  }
+
+  enum Reaction {
+    LOSE,
+    DRAW,
+    WIN;
+
+    private static Reaction of(final String own) {
+      return switch (own) {
+        case "X" -> LOSE;
+        case "Y" -> DRAW;
+        case "Z" -> WIN;
+        default -> throw new IllegalStateException("Unexpected reaction: " + own);
+      };
+    }
+
+    private Hand apply(final Hand opponent) {
+      return switch (this) {
+        case LOSE -> opponent.defeatsWhich();
+        case DRAW -> opponent;
+        case WIN -> Arrays.stream(Hand.values())
+            .filter(hand -> hand != opponent && hand != opponent.defeatsWhich())
+            .findFirst()
+            .get();
       };
     }
   }
