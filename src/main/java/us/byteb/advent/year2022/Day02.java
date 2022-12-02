@@ -2,7 +2,6 @@ package us.byteb.advent.year2022;
 
 import static us.byteb.advent.Utils.readFileFromResources;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -18,7 +17,7 @@ public class Day02 {
         return new Round(opponentHand, reaction.apply(opponentHand));
       };
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     final String input = readFileFromResources("year2022/day02.txt");
 
     System.out.println("Part 1: " + totalScore(parseInput(input, STRATEGY_PART1)));

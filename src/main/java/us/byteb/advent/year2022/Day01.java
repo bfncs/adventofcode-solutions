@@ -3,7 +3,6 @@ package us.byteb.advent.year2022;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static us.byteb.advent.Utils.readFileFromResources;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public class Day01 {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     final List<Elf> input = parseInput(readFileFromResources("year2022/day01.txt"));
 
     System.out.println("Part 1: " + findMaxCalories(input));

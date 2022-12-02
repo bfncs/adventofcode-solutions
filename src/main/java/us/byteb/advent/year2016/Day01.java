@@ -3,14 +3,13 @@ package us.byteb.advent.year2016;
 import static us.byteb.advent.Utils.readFileFromResources;
 import static us.byteb.advent.year2016.Day01.CardinalDirection.NORTH;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 public class Day01 {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     final List<Instruction> input = parseInput(readFileFromResources("year2016/day01.txt"));
 
     System.out.println("Part 1: " + followInstructions(input).position().distanceToOrigin());
