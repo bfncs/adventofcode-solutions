@@ -54,19 +54,19 @@ public class Day02 {
   enum Hand {
     ROCK(1L) {
       @Override
-      public Hand defeatsWhich() {
-        return SCISSOR;
+      public Hand defeats() {
+        return SCISSORS;
       }
     },
     PAPER(2L) {
       @Override
-      public Hand defeatsWhich() {
+      public Hand defeats() {
         return ROCK;
       }
     },
-    SCISSOR(3L) {
+    SCISSORS(3L) {
       @Override
-      public Hand defeatsWhich() {
+      public Hand defeats() {
         return PAPER;
       }
     };
@@ -77,7 +77,7 @@ public class Day02 {
       this.shapeScore = shapeScore;
     }
 
-    public abstract Hand defeatsWhich();
+    public abstract Hand defeats();
 
     public long shapeScore() {
       return shapeScore;
@@ -86,7 +86,7 @@ public class Day02 {
     public long scoreAgainst(final Hand opponent) {
       if (this == opponent) {
         return 3L;
-      } else if (this.defeatsWhich() == opponent) {
+      } else if (this.defeats() == opponent) {
         return 6L;
       } else {
         return 0L;
@@ -97,20 +97,20 @@ public class Day02 {
       return switch (s.toUpperCase()) {
         case "A", "X" -> ROCK;
         case "B", "Y" -> PAPER;
-        case "C", "Z" -> SCISSOR;
+        case "C", "Z" -> SCISSORS;
         default -> throw new IllegalStateException("Unexpected hand: " + s);
       };
     }
   }
 
   enum Reaction {
-    LOSE,
+    LOOSE,
     DRAW,
     WIN;
 
     private static Reaction of(final String own) {
       return switch (own) {
-        case "X" -> LOSE;
+        case "X" -> LOOSE;
         case "Y" -> DRAW;
         case "Z" -> WIN;
         default -> throw new IllegalStateException("Unexpected reaction: " + own);
@@ -119,12 +119,12 @@ public class Day02 {
 
     private Hand apply(final Hand opponent) {
       return switch (this) {
-        case LOSE -> opponent.defeatsWhich();
+        case LOOSE -> opponent.defeats();
         case DRAW -> opponent;
         case WIN -> Arrays.stream(Hand.values())
-            .filter(hand -> hand != opponent && hand != opponent.defeatsWhich())
+            .filter(hand -> hand != opponent && hand != opponent.defeats())
             .findFirst()
-            .get();
+            .orElseThrow();
       };
     }
   }
