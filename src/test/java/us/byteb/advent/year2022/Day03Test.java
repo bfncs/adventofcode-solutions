@@ -1,6 +1,7 @@
 package us.byteb.advent.year2022;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static us.byteb.advent.year2022.Day03.*;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class Day03Test {
 
   @Test
   void partOneExample() {
-    final List<Backpack> backpacks = Day03.parseInput(PART1_EXAMPLE_DATA);
+    final List<Backpack> backpacks = parseInput(PART1_EXAMPLE_DATA);
 
     assertEquals(new Item('p'), backpacks.get(0).findDuplicateItem());
     assertEquals(new Item('L'), backpacks.get(1).findDuplicateItem());
@@ -29,7 +30,14 @@ class Day03Test {
     assertEquals(new Item('t'), backpacks.get(4).findDuplicateItem());
     assertEquals(new Item('s'), backpacks.get(5).findDuplicateItem());
 
-    assertEquals(157L, Day03.sumOfPrioritiesOfDuplicateItems(backpacks));
+    assertEquals(157L, sumOfPrioritiesOfDuplicateItems(backpacks));
+  }
+
+  @Test
+  void partTwoExample() {
+    final List<Backpack> backpacks = parseInput(PART1_EXAMPLE_DATA);
+
+    assertEquals(70L, sumOfPrioritiesOfGroupItemTypes(backpacks));
   }
 
   @Test
