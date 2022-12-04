@@ -20,8 +20,15 @@ class Day04Test {
 
   @Test
   void partOneExample() {
-    final List<Pair> backpacks = parseInput(PART1_EXAMPLE_DATA);
+    final List<Pair> pairs = parseInput(PART1_EXAMPLE_DATA);
 
-    assertEquals(2L, numberOfPairsWhereOneContainsTheOther(backpacks));
+    assertEquals(2L, countFullOverlap(pairs));
+  }
+
+  @Test
+  void partTwoExample() {
+    final List<Pair> pairs = parseInput(PART1_EXAMPLE_DATA);
+
+    assertEquals(4L, countPartialOverlap(pairs));
   }
 }
