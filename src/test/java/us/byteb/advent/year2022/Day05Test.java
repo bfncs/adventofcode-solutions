@@ -24,7 +24,7 @@ class Day05Test {
 
   @Test
   void parse() {
-    final PuzzleInput input = parseInput(Ega XAMPLE_DATA);
+    final PuzzleInput input = parseInput(EXAMPLE_DATA);
 
     assertEquals(
         new PuzzleInput(

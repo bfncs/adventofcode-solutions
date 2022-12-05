@@ -18,64 +18,57 @@ public class Day05 {
         final AtomicReference<State> currentState = new AtomicReference<>(state);
 
         for (int repeat = 0; repeat < instruction.count(); repeat++) {
-          final List<Stack> stacks =
-              IntStream.range(0, state.stacks().size())
-                  .mapToObj(
-                      i -> {
-                        final Stack stack = currentState.get().stacks().get(i);
-                        if (i == instruction.source() - 1) {
-                          return new Stack(stack.crates().subList(0, stack.crates().size() - 1));
-                        } else if (i == instruction.target() - 1) {
-                          final Stack sourceStack =
-                              currentState.get().stacks().get(instruction.source() - 1);
-                          final Crate sourceCrate =
-                              sourceStack.crates().get(sourceStack.crates().size() - 1);
-                          return new Stack(
-                              Stream.concat(stack.crates().stream(), Stream.of(sourceCrate))
-                                  .toList());
-                        } else {
-                          return stack;
-                        }
-                      })
-                  .toList();
-          currentState.set(new State(stacks));
+          final State nextState =
+              new State(
+                  IntStream.range(0, state.stacks().size())
+                      .mapToObj(
+                          i -> {
+                            final List<Stack> stacks = currentState.get().stacks();
+                            final Stack currentStack = stacks.get(i);
+                            final boolean isSource = i == instruction.source() - 1;
+                            final boolean isTarget = i == instruction.target() - 1;
+
+                            if (isSource) {
+                              return currentStack.withoutLast(1);
+                            }
+
+                            if (isTarget) {
+                              final Stack sourceStack = stacks.get(instruction.source() - 1);
+                              return currentStack.append(sourceStack.getLast(1));
+                            }
+
+                            return currentStack;
+                          })
+                      .toList());
+          currentState.set(nextState);
         }
 
         return currentState.get();
       };
 
   static BiFunction<State, Instruction, State> STRATEGY2 =
-      (state, instruction) -> {
-        final AtomicReference<State> currentState = new AtomicReference<>(state);
+      (state, instruction) ->
+          new State(
+              IntStream.range(0, state.stacks().size())
+                  .mapToObj(
+                      i -> {
+                        final List<Stack> stacks = state.stacks();
+                        final Stack currentStack = stacks.get(i);
+                        final boolean isSource = i == instruction.source() - 1;
+                        final boolean isTarget = i == instruction.target() - 1;
 
-        final List<Stack> stacks =
-            IntStream.range(0, state.stacks().size())
-                .mapToObj(
-                    i -> {
-                      final Stack stack = currentState.get().stacks().get(i);
-                      if (i == instruction.source() - 1) {
-                        return new Stack(
-                            stack.crates().subList(0, stack.crates().size() - instruction.count()));
-                      } else if (i == instruction.target() - 1) {
-                        final Stack sourceStack =
-                            currentState.get().stacks().get(instruction.source() - 1);
-                        final List<Crate> sourceCrates =
-                            sourceStack
-                                .crates()
-                                .subList(
-                                    sourceStack.crates().size() - instruction.count(),
-                                    sourceStack.crates.size());
-                        return new Stack(
-                            Stream.concat(stack.crates().stream(), sourceCrates.stream()).toList());
-                      } else {
-                        return stack;
-                      }
-                    })
-                .toList();
-        currentState.set(new State(stacks));
+                        if (isSource) {
+                          return currentStack.withoutLast(instruction.count());
+                        }
 
-        return currentState.get();
-      };
+                        if (isTarget) {
+                          final Stack sourceStack = stacks.get(instruction.source() - 1);
+                          return currentStack.append(sourceStack.getLast(instruction.count()));
+                        }
+
+                        return currentStack;
+                      })
+                  .toList());
 
   private static final Pattern INSTRUCTION_PATTERN =
       Pattern.compile("move (\\d+) from (\\d+) to (\\d+)");
@@ -99,7 +92,8 @@ public class Day05 {
     return new PuzzleInput(state, instructions);
   }
 
-  private static String solve(final PuzzleInput input, final BiFunction<State, Instruction, State> strategy) {
+  private static String solve(
+      final PuzzleInput input, final BiFunction<State, Instruction, State> strategy) {
     return input.state().apply(input.instructions(), strategy).topCrates().stream()
         .map(crate -> crate.character().toString())
         .collect(Collectors.joining());
@@ -131,7 +125,9 @@ public class Day05 {
       return new State(stacks);
     }
 
-    State apply(final List<Instruction> instructions, final BiFunction<State, Instruction, State> strategy) {
+    State apply(
+        final List<Instruction> instructions,
+        final BiFunction<State, Instruction, State> strategy) {
       State currentState = this;
 
       for (final Instruction instruction : instructions) {
@@ -147,8 +143,20 @@ public class Day05 {
   }
 
   record Stack(List<Crate> crates) {
-    static Stack of(Crate ...crate) {
-      return new Stack(Arrays.stream(crate).toList());
+    static Stack of(Crate... crates) {
+      return new Stack(Arrays.stream(crates).toList());
+    }
+
+    Stack append(final Collection<Crate> addedCrates) {
+      return new Stack(Stream.concat(crates.stream(), addedCrates.stream()).toList());
+    }
+
+    Stack withoutLast(final int numItems) {
+      return new Stack(crates.subList(0, crates.size() - numItems));
+    }
+
+    List<Crate> getLast(final int numItems) {
+      return crates.subList(crates.size() - numItems, crates.size());
     }
   }
 
