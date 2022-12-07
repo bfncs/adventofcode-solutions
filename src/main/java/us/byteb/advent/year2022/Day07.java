@@ -25,6 +25,8 @@ public class Day07 {
 
     System.out.println(
         "Part 1: " + sumOfTotalSizesOfDirectoriesBelow100000(determineFilesystem(parse(input))));
+    System.out.println(
+        "Part 2: " + smallestDirectoryToFreeUpSpace(determineFilesystem(parse(input))).size());
   }
 
   static List<Command> parse(final String input) {
@@ -106,6 +108,14 @@ public class Day07 {
         .mapToLong(Directory::size)
         .filter(size -> size <= 100000)
         .sum();
+  }
+
+  static Directory smallestDirectoryToFreeUpSpace(final Directory directory) {
+    final long minSizeToFreeUp = 30_000_000L - (70_000_000L - directory.size());
+    return findDirectories(directory).stream()
+        .filter(dir -> dir.size() > minSizeToFreeUp)
+        .min(Comparator.comparing(Directory::size))
+        .orElseThrow();
   }
 
   sealed interface Command {
