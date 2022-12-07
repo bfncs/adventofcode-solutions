@@ -113,4 +113,12 @@ class Day07Test {
     final long result = sumOfTotalSizesOfDirectoriesBelow100000(root);
     assertEquals(95437L, result);
   }
+
+  @Test
+  void partTwoExample() {
+    final Directory root = determineFilesystem(parse(EXAMPLE_DATA));
+    final Directory result = smallestDirectoryToFreeUpSpace(root);
+    assertEquals("d", result.name());
+    assertEquals(24933642L, result.size());
+  }
 }
