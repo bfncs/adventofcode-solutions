@@ -1,10 +1,10 @@
 package us.byteb.advent.year2022;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static us.byteb.advent.year2022.Day08.findHighestScenicScore;
 import static us.byteb.advent.year2022.Day08.findVisibleTrees;
+
+import org.junit.jupiter.api.Test;
 
 class Day08Test {
 

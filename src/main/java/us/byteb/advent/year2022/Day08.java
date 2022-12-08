@@ -14,7 +14,13 @@ public class Day08 {
   }
 
   public static long findVisibleTrees(final String input) {
-    final List<List<Integer>> grid = input.lines().map(line -> line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList()).toList();
+    final List<List<Integer>> grid =
+        input
+            .lines()
+            .map(
+                line ->
+                    line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList())
+            .toList();
     final int gridHeight = grid.size();
     final int gridWidth = grid.get(0).size();
 
@@ -29,13 +35,12 @@ public class Day08 {
         boolean isVisibleLeft = isVisibleX(grid, y, 0, x, currentTree);
         boolean isVisibleRight = isVisibleX(grid, y, x + 1, gridWidth, currentTree);
         boolean isVisibleUp = isVisibleY(grid, x, 0, y, currentTree);
-        boolean isVisibleDown = isVisibleY(grid, x, y + 1 , gridHeight, currentTree);
+        boolean isVisibleDown = isVisibleY(grid, x, y + 1, gridHeight, currentTree);
 
         boolean isVisible = isVisibleLeft || isVisibleRight || isVisibleUp || isVisibleDown;
         if (isVisible) {
           visibleTrees++;
         }
-
       }
     }
 
@@ -43,7 +48,13 @@ public class Day08 {
   }
 
   public static long findHighestScenicScore(final String input) {
-    final List<List<Integer>> grid = input.lines().map(line -> line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList()).toList();
+    final List<List<Integer>> grid =
+        input
+            .lines()
+            .map(
+                line ->
+                    line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList())
+            .toList();
     final int gridHeight = grid.size();
     final int gridWidth = grid.get(0).size();
 
@@ -62,14 +73,18 @@ public class Day08 {
         final int visible = visibleLeft * visibleRight * visibleUp * visibleDown;
 
         score = Math.max(score, visible);
-
       }
     }
 
     return score;
   }
 
-  private static int countVisibleLeft(final List<List<Integer>> grid, final int y, final int minX, final int maxX, final int currentValue) {
+  private static int countVisibleLeft(
+      final List<List<Integer>> grid,
+      final int y,
+      final int minX,
+      final int maxX,
+      final int currentValue) {
     int visibleTrees = 0;
     for (int lookUp = maxX; lookUp >= minX; lookUp--) {
       final int lookTree = grid.get(y).get(lookUp);
@@ -82,7 +97,12 @@ public class Day08 {
     return visibleTrees;
   }
 
-  private static int countVisibleRight(final List<List<Integer>> grid, final int y, final int minX, final int maxX, final int currentValue) {
+  private static int countVisibleRight(
+      final List<List<Integer>> grid,
+      final int y,
+      final int minX,
+      final int maxX,
+      final int currentValue) {
     int visibleTrees = 0;
     for (int lookUp = minX; lookUp < maxX; lookUp++) {
       final int lookTree = grid.get(y).get(lookUp);
@@ -95,7 +115,12 @@ public class Day08 {
     return visibleTrees;
   }
 
-  private static int countVisibleUp(final List<List<Integer>> grid, final int x, final int minY, final int maxY, final int currentValue) {
+  private static int countVisibleUp(
+      final List<List<Integer>> grid,
+      final int x,
+      final int minY,
+      final int maxY,
+      final int currentValue) {
     int visibleTrees = 0;
     for (int lookUp = maxY; lookUp >= minY; lookUp--) {
       final int lookTree = grid.get(lookUp).get(x);
@@ -108,7 +133,12 @@ public class Day08 {
     return visibleTrees;
   }
 
-  private static int countVisibleDown(final List<List<Integer>> grid, final int x, final int minY, final int maxY, final int currentValue) {
+  private static int countVisibleDown(
+      final List<List<Integer>> grid,
+      final int x,
+      final int minY,
+      final int maxY,
+      final int currentValue) {
     int visibleTrees = 0;
     for (int lookUp = minY; lookUp < maxY; lookUp++) {
       final int lookTree = grid.get(lookUp).get(x);
@@ -121,7 +151,12 @@ public class Day08 {
     return visibleTrees;
   }
 
-  private static boolean isVisibleX(final List<List<Integer>> grid, final int y, final int minX, final int maxX, final Integer currentValue) {
+  private static boolean isVisibleX(
+      final List<List<Integer>> grid,
+      final int y,
+      final int minX,
+      final int maxX,
+      final Integer currentValue) {
     for (int lookUp = minX; lookUp < maxX; lookUp++) {
       final int lookTree = grid.get(y).get(lookUp);
       if (lookTree >= currentValue) {
@@ -132,7 +167,12 @@ public class Day08 {
     return true;
   }
 
-  private static boolean isVisibleY(final List<List<Integer>> grid, final int x, final int minY, final int maxY, final Integer currentValue) {
+  private static boolean isVisibleY(
+      final List<List<Integer>> grid,
+      final int x,
+      final int minY,
+      final int maxY,
+      final Integer currentValue) {
     for (int lookUp = minY; lookUp < maxY; lookUp++) {
       final int lookTree = grid.get(lookUp).get(x);
       if (lookTree >= currentValue) {
