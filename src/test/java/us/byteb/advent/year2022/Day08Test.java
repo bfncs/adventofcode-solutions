@@ -3,6 +3,8 @@ package us.byteb.advent.year2022;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static us.byteb.advent.year2022.Day08.findHighestScenicScore;
+import static us.byteb.advent.year2022.Day08.findVisibleTrees;
 
 class Day08Test {
 
@@ -17,6 +19,11 @@ class Day08Test {
 
   @Test
   void partOneExample() {
-    assertEquals(21L, Day08.findVisibleTrees(EXAMPLE_DATA));
+    assertEquals(21L, findVisibleTrees(EXAMPLE_DATA));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(8L, findHighestScenicScore(EXAMPLE_DATA));
   }
 }
