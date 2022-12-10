@@ -1,8 +1,14 @@
 package us.byteb.advent.year2022;
 
 import static us.byteb.advent.Utils.readFileFromResources;
+import static us.byteb.advent.year2022.Day08.AXIS.X;
+import static us.byteb.advent.year2022.Day08.AXIS.Y;
+import static us.byteb.advent.year2022.Day08.DIRECTION.DECREMENT;
+import static us.byteb.advent.year2022.Day08.DIRECTION.INCREMENT;
 
-import java.util.*;
+import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public class Day08 {
 
@@ -14,30 +20,32 @@ public class Day08 {
   }
 
   public static long findVisibleTrees(final String input) {
-    final List<List<Integer>> grid =
-        input
-            .lines()
-            .map(
-                line ->
-                    line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList())
-            .toList();
-    final int gridHeight = grid.size();
-    final int gridWidth = grid.get(0).size();
+    final Grid grid = Grid.of(input);
 
-    long visibleTrees = (2 * gridHeight) + (2 * gridWidth) - 4;
+    long visibleTrees = (2L * grid.height()) + (2L * grid.width()) - 4;
 
-    for (int y = 1; y < gridHeight - 1; y++) {
-      final List<Integer> currentRow = grid.get(y);
-      for (int x = 1; x < currentRow.size() - 1; x++) {
+    for (int y = 1; y < grid.height() - 1; y++) {
+      for (int x = 1; x < grid.width() - 1; x++) {
 
-        final Integer currentTree = grid.get(y).get(x);
+        final int currentTree = grid.get(y, x);
 
-        boolean isVisibleLeft = isVisibleX(grid, y, 0, x, currentTree);
-        boolean isVisibleRight = isVisibleX(grid, y, x + 1, gridWidth, currentTree);
-        boolean isVisibleUp = isVisibleY(grid, x, 0, y, currentTree);
-        boolean isVisibleDown = isVisibleY(grid, x, y + 1, gridHeight, currentTree);
+        boolean left = isVisibleX(grid, y, 0, x, currentTree);
+        boolean leftNew = countVisible(grid, X, INCREMENT, y, 0, x + 1, currentTree) == x + 1;
+        boolean right = isVisibleX(grid, y, x + 1, grid.width(), currentTree);
+        boolean rightNew =
+            countVisible(grid, X, DECREMENT, y, x, grid.width() - 1, currentTree)
+                == grid.width() - x;
+        boolean up = isVisibleY(grid, x, 0, y, currentTree);
+        boolean upNew = countVisible(grid, X, INCREMENT, x, 0, y, currentTree) == y + 1;
+        boolean down = isVisibleY(grid, x, y + 1, grid.height(), currentTree);
+        boolean downNew =
+            countVisible(grid, X, DECREMENT, x, y + 1, grid.height() - 1, currentTree)
+                == grid.height() - y;
+        if (left != leftNew || right != rightNew || up != upNew || down != downNew) {
+          throw new IllegalStateException();
+        }
+        boolean isVisible = leftNew || rightNew || upNew || downNew;
 
-        boolean isVisible = isVisibleLeft || isVisibleRight || isVisibleUp || isVisibleDown;
         if (isVisible) {
           visibleTrees++;
         }
@@ -48,102 +56,67 @@ public class Day08 {
   }
 
   public static long findHighestScenicScore(final String input) {
-    final List<List<Integer>> grid =
-        input
-            .lines()
-            .map(
-                line ->
-                    line.chars().mapToObj(c -> Integer.parseInt(String.valueOf((char) c))).toList())
-            .toList();
-    final int gridHeight = grid.size();
-    final int gridWidth = grid.get(0).size();
+    final Grid grid = Grid.of(input);
 
-    long score = 0L;
+    long maxScore = 0L;
 
-    for (int y = 1; y < gridHeight - 1; y++) {
-      final List<Integer> currentRow = grid.get(y);
-      for (int x = 1; x < currentRow.size() - 1; x++) {
+    for (int y = 1; y < grid.height() - 1; y++) {
+      for (int x = 1; x < grid.width() - 1; x++) {
 
-        final int currentTree = grid.get(y).get(x);
+        final int currentTree = grid.get(y, x);
 
-        final int visibleLeft = countVisibleLeft(grid, y, 0, x - 1, currentTree);
-        final int visibleRight = countVisibleRight(grid, y, x + 1, gridWidth, currentTree);
-        final int visibleUp = countVisibleUp(grid, x, 0, y - 1, currentTree);
-        final int visibleDown = countVisibleDown(grid, x, y + 1, gridHeight, currentTree);
-        final int visible = visibleLeft * visibleRight * visibleUp * visibleDown;
+        final int left = countVisible(grid, X, DECREMENT, y, 0, x - 1, currentTree);
+        final int right = countVisible(grid, X, INCREMENT, y, x + 1, grid.width(), currentTree);
+        final int up = countVisible(grid, Y, DECREMENT, x, 0, y - 1, currentTree);
+        final int down = countVisible(grid, Y, INCREMENT, x, y + 1, grid.height(), currentTree);
+        final int score = left * right * up * down;
 
-        score = Math.max(score, visible);
+        maxScore = Math.max(maxScore, score);
       }
     }
 
-    return score;
+    return maxScore;
   }
 
-  private static int countVisibleLeft(
-      final List<List<Integer>> grid,
-      final int y,
-      final int minX,
-      final int maxX,
-      final int currentValue) {
+  private static int countVisible(
+      final Grid grid,
+      final AXIS variableAxis,
+      final DIRECTION direction,
+      final int fixAxisValue,
+      final int variableAxisMin,
+      final int variableAxisMax,
+      final int referenceTree) {
+    int start =
+        switch (direction) {
+          case INCREMENT -> variableAxisMin;
+          case DECREMENT -> variableAxisMax;
+        };
+    int stop =
+        switch (direction) {
+          case INCREMENT -> variableAxisMax;
+          case DECREMENT -> variableAxisMin;
+        };
+    int step =
+        switch (direction) {
+          case INCREMENT -> 1;
+          case DECREMENT -> -1;
+        };
+    final BiPredicate<Integer, Integer> condition =
+        switch (direction) {
+          case INCREMENT -> (current, limit) -> current < limit;
+          case DECREMENT -> (current, limit) -> current >= limit;
+        };
+    final Function<Integer, Integer> accessTree =
+        switch (variableAxis) {
+          case Y -> (variableAxisValue) -> grid.get(variableAxisValue, fixAxisValue);
+          case X -> (value) -> grid.get(fixAxisValue, value);
+        };
+
     int visibleTrees = 0;
-    for (int lookUp = maxX; lookUp >= minX; lookUp--) {
-      final int lookTree = grid.get(y).get(lookUp);
+    for (int value = start; condition.test(value, stop); value += step) {
+      final int tree = accessTree.apply(value);
       visibleTrees++;
-      if (lookTree >= currentValue) {
-        break;
-      }
-    }
-
-    return visibleTrees;
-  }
-
-  private static int countVisibleRight(
-      final List<List<Integer>> grid,
-      final int y,
-      final int minX,
-      final int maxX,
-      final int currentValue) {
-    int visibleTrees = 0;
-    for (int lookUp = minX; lookUp < maxX; lookUp++) {
-      final int lookTree = grid.get(y).get(lookUp);
-      visibleTrees++;
-      if (lookTree >= currentValue) {
-        break;
-      }
-    }
-
-    return visibleTrees;
-  }
-
-  private static int countVisibleUp(
-      final List<List<Integer>> grid,
-      final int x,
-      final int minY,
-      final int maxY,
-      final int currentValue) {
-    int visibleTrees = 0;
-    for (int lookUp = maxY; lookUp >= minY; lookUp--) {
-      final int lookTree = grid.get(lookUp).get(x);
-      visibleTrees++;
-      if (lookTree >= currentValue) {
-        break;
-      }
-    }
-
-    return visibleTrees;
-  }
-
-  private static int countVisibleDown(
-      final List<List<Integer>> grid,
-      final int x,
-      final int minY,
-      final int maxY,
-      final int currentValue) {
-    int visibleTrees = 0;
-    for (int lookUp = minY; lookUp < maxY; lookUp++) {
-      final int lookTree = grid.get(lookUp).get(x);
-      visibleTrees++;
-      if (lookTree >= currentValue) {
+      if (tree >= referenceTree) {
         break;
       }
     }
@@ -152,14 +125,10 @@ public class Day08 {
   }
 
   private static boolean isVisibleX(
-      final List<List<Integer>> grid,
-      final int y,
-      final int minX,
-      final int maxX,
-      final Integer currentValue) {
+      final Grid grid, final int y, final int minX, final int maxX, final Integer referenceTree) {
     for (int lookUp = minX; lookUp < maxX; lookUp++) {
-      final int lookTree = grid.get(y).get(lookUp);
-      if (lookTree >= currentValue) {
+      final int lookTree = grid.get(y, lookUp);
+      if (lookTree >= referenceTree) {
         return false;
       }
     }
@@ -168,13 +137,9 @@ public class Day08 {
   }
 
   private static boolean isVisibleY(
-      final List<List<Integer>> grid,
-      final int x,
-      final int minY,
-      final int maxY,
-      final Integer currentValue) {
+      final Grid grid, final int x, final int minY, final int maxY, final Integer currentValue) {
     for (int lookUp = minY; lookUp < maxY; lookUp++) {
-      final int lookTree = grid.get(lookUp).get(x);
+      final int lookTree = grid.get(lookUp, x);
       if (lookTree >= currentValue) {
         return false;
       }
@@ -182,4 +147,41 @@ public class Day08 {
 
     return true;
   }
+
+  record Grid(List<List<Integer>> data) {
+    public static Grid of(final String input) {
+      final List<List<Integer>> data =
+          input
+              .lines()
+              .map(
+                  line ->
+                      line.chars()
+                          .mapToObj(c -> Integer.parseInt(String.valueOf((char) c)))
+                          .toList())
+              .toList();
+      return new Grid(data);
+    }
+
+    public int get(final int y, final int x) {
+      return data.get(y).get(x);
+    }
+
+    private int height() {
+      return data.size();
+    }
+
+    private int width() {
+      return data.get(0).size();
+    }
+  }
+
+  enum DIRECTION {
+    INCREMENT,
+    DECREMENT
+  };
+
+  enum AXIS {
+    Y,
+    X
+  };
 }
