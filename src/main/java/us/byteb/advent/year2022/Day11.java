@@ -2,6 +2,7 @@ package us.byteb.advent.year2022;
 
 import static us.byteb.advent.Utils.readFileFromResources;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -20,15 +21,27 @@ public class Day11 {
   public static void main(String[] args) {
     final String input = readFileFromResources("year2022/day11.txt");
 
-    System.out.println("Part 1:" + monkeyBusiness(input, 20));
+    System.out.println("Part 1:" + monkeyBusiness(input, 20, true));
+    System.out.println("Part 2:" + monkeyBusiness(input, 10_000, false));
   }
 
-  public static int monkeyBusiness(final String input, final int rounds) {
+  public static BigInteger monkeyBusiness(
+      final String input, final int rounds, final boolean divideAfterInspection) {
     final List<Monkey> monkeys = parse(input);
+
+    final long commonDivisor =
+        monkeys.stream()
+            .mapToLong(m -> m.test.divisibleBy())
+            .reduce(Math::multiplyExact)
+            .orElseThrow();
 
     for (int round = 0; round < rounds; round++) {
       for (final Monkey monkey : monkeys) {
-        monkey.turn(monkeys::get);
+        monkey.turn(
+            monkeys::get,
+            divideAfterInspection
+                ? worryLevel -> worryLevel.divide(BigInteger.valueOf(3))
+                : worryLevel -> worryLevel.remainder(BigInteger.valueOf(commonDivisor)));
       }
     }
 
@@ -36,7 +49,8 @@ public class Day11 {
         .mapToInt(Monkey::numInspections)
         .sorted()
         .skip(monkeys.size() - 2)
-        .reduce(Math::multiplyExact)
+        .mapToObj(BigInteger::valueOf)
+        .reduce(BigInteger::multiply)
         .orElseThrow();
   }
 
@@ -92,14 +106,14 @@ public class Day11 {
   }
 
   static final class Monkey {
-    private final Deque<Integer> items;
+    private final Deque<BigInteger> items;
     private final Operation operation;
     private final Test test;
 
     private int numInspections = 0;
 
     Monkey(final List<Integer> items, final Operation operation, final Test test) {
-      this.items = new LinkedList<>(items);
+      this.items = new LinkedList<>(items.stream().map(BigInteger::valueOf).toList());
       this.operation = operation;
       this.test = test;
     }
@@ -108,44 +122,50 @@ public class Day11 {
       return numInspections;
     }
 
-    private void turn(final Function<Integer, Monkey> getMonkeyById) {
+    private void turn(
+        final Function<Integer, Monkey> getMonkeyById,
+        final Function<BigInteger, BigInteger> lowerWorryLevel) {
       while (!items.isEmpty()) {
-        final int item = items.pop();
+        final BigInteger item = items.pop();
+
         numInspections++;
-        final int worryLevel = operation.apply(item) / 3;
+        final BigInteger worryLevel = lowerWorryLevel.apply(operation.apply(item));
+
         final int targetMonkey =
-            worryLevel % test.divisibleBy() == 0 ? test.trueTarget() : test.falseTarget();
+            worryLevel.mod(BigInteger.valueOf(test.divisibleBy())).equals(BigInteger.ZERO)
+                ? test.trueTarget()
+                : test.falseTarget();
         getMonkeyById.apply(targetMonkey).addItem(worryLevel);
       }
     }
 
-    private void addItem(final int worryLevel) {
+    private void addItem(final BigInteger worryLevel) {
       items.add(worryLevel);
     }
   }
 
   sealed interface Operation {
 
-    int apply(int value);
+    BigInteger apply(BigInteger value);
 
     record Add(int addend) implements Operation {
       @Override
-      public int apply(final int value) {
-        return value + addend;
+      public BigInteger apply(final BigInteger value) {
+        return value.add(BigInteger.valueOf(addend));
       }
     }
 
     record Multiply(int factor) implements Operation {
       @Override
-      public int apply(final int value) {
-        return value * factor;
+      public BigInteger apply(final BigInteger value) {
+        return value.multiply(BigInteger.valueOf(factor));
       }
     }
 
     record Square() implements Operation {
       @Override
-      public int apply(final int value) {
-        return value * value;
+      public BigInteger apply(final BigInteger value) {
+        return value.multiply(value);
       }
     }
   }
