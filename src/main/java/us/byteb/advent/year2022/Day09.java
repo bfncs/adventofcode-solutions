@@ -1,29 +1,31 @@
 package us.byteb.advent.year2022;
 
 import static us.byteb.advent.Utils.readFileFromResources;
-import static us.byteb.advent.year2022.Day09.Direction.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public class Day09 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2022/day09.txt");
 
-    System.out.println("Part 1: " + countPositionsVisitedByTail(input));
+    System.out.println("Part 1: " + countPositionsVisitedByTail(input, 2));
+    System.out.println("Part 2: " + countPositionsVisitedByTail(input, 10));
   }
 
-  public static long countPositionsVisitedByTail(final String input) {
+  public static long countPositionsVisitedByTail(final String input, final int numKnots) {
     final List<Motion> motions = parseInput(input);
-    State state = new State(new Position(0, 0), new Position(0, 0));
-    final Set<Position> tailPositions = new HashSet<>(Set.of(state.tail()));
+    Rope rope = Rope.ofSize(numKnots);
+    final Set<Position> tailPositions = new HashSet<>(Set.of(rope.tail()));
 
     for (final Motion motion : motions) {
       for (int i = 0; i < motion.steps(); i++) {
-        state = state.moveHead(motion.direction());
-        tailPositions.add(state.tail());
+        rope = rope.moveHead(motion.direction());
+        tailPositions.add(rope.tail());
       }
     }
 
@@ -76,34 +78,50 @@ public class Day09 {
     }
   }
 
-  record State(Position head, Position tail) {
-    private State moveHead(final Direction direction) {
-      final Position nextHead = head.move(direction);
+  record Rope(List<Position> knots) {
+    public static Rope ofSize(int numKnots) {
+      return new Rope(
+          IntStream.range(0, numKnots).mapToObj(ignored -> new Position(0, 0)).toList());
+    }
 
-      if (nextHead.isTouching(tail)) {
-        return new State(nextHead, tail);
+    public Position tail() {
+      return knots.get(knots().size() - 1);
+    }
+
+    public Rope moveHead(final Direction direction) {
+      final List<Position> nextKnots = new ArrayList<>();
+      nextKnots.add(knots.get(0).move(direction));
+
+      for (int i = 1; i < knots.size(); i++) {
+        final Position current = knots.get(i);
+        final Position predecessor = nextKnots.get(i - 1);
+
+        if (predecessor.isTouching(current)) {
+          nextKnots.add(current);
+        } else {
+          final int nextY;
+          if (predecessor.y() == current.y()) {
+            nextY = current.y();
+          } else if (predecessor.y() < current.y()) {
+            nextY = current.y() - 1;
+          } else {
+            nextY = current.y() + 1;
+          }
+
+          final int nextX;
+          if (predecessor.x() == current.x()) {
+            nextX = current.x();
+          } else if (predecessor.x() < current.x()) {
+            nextX = current.x() - 1;
+          } else {
+            nextX = current.x() + 1;
+          }
+
+          nextKnots.add(new Position(nextX, nextY));
+        }
       }
 
-      return new State(
-          nextHead,
-          switch (direction) {
-            case UP, DOWN -> {
-              if (head.x() < tail.x()) {
-                yield tail.move(direction).move(LEFT);
-              } else if (head.x() > tail.x()) {
-                yield tail.move(direction).move(RIGHT);
-              }
-              yield tail.move(direction);
-            }
-            case LEFT, RIGHT -> {
-              if (head.y() < tail.y()) {
-                yield tail.move(direction).move(UP);
-              } else if (head.y() > tail.y()) {
-                yield tail.move(direction).move(DOWN);
-              }
-              yield tail.move(direction);
-            }
-          });
+      return new Rope(nextKnots);
     }
   }
 }

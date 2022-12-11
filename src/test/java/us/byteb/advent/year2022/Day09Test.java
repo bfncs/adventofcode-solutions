@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class Day09Test {
 
-  private static final String EXAMPLE_DATA =
+  private static final String PART_ONE_EXAMPLE_DATA =
       """
       R 4
       U 4
@@ -19,8 +19,26 @@ class Day09Test {
       R 2
       """;
 
+  private static final String PART_TWO_EXAMPLE_DATA =
+      """
+      R 5
+      U 8
+      L 8
+      D 3
+      R 17
+      D 10
+      L 25
+      U 20
+      """;
+
   @Test
   void partOneExample() {
-    assertEquals(13L, countPositionsVisitedByTail(EXAMPLE_DATA));
+    assertEquals(13L, countPositionsVisitedByTail(PART_ONE_EXAMPLE_DATA, 2));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(1L, countPositionsVisitedByTail(PART_ONE_EXAMPLE_DATA, 10));
+    assertEquals(36L, countPositionsVisitedByTail(PART_TWO_EXAMPLE_DATA, 10));
   }
 }
