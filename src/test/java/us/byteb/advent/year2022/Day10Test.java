@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 
 class Day10Test {
 
-  final String PART_ONE_EXAMPLE_DATA = readFileFromResources("year2022/day10.txt");
+  final String EXAMPLE_DATA = readFileFromResources("year2022/day10.txt");
 
   @Test
   void partOneExample() {
-    final Map<Integer, Integer> result = signalStrengthsDuringCycles(PART_ONE_EXAMPLE_DATA);
+    final Map<Integer, Integer> result = signalStrengthsDuringCycles(EXAMPLE_DATA);
     assertEquals(
         13140,
         result.get(20)
@@ -22,5 +22,19 @@ class Day10Test {
             + result.get(140)
             + result.get(180)
             + result.get(220));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(
+        """
+        ##..##..##..##..##..##..##..##..##..##..
+        ###...###...###...###...###...###...###.
+        ####....####....####....####....####....
+        #####.....#####.....#####.....#####.....
+        ######......######......######......####
+        #######.......#######.......#######.....
+        """,
+        renderCrt(EXAMPLE_DATA));
   }
 }
