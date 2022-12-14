@@ -18,6 +18,11 @@ class Day12Test {
 
   @Test
   void partOneExample() {
-    assertEquals(31, shortestPath(EXAMPLE_DATA).size());
+    assertEquals(31, shortestPathFromMarkedStart(EXAMPLE_DATA).size() - 1);
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(29, shortestPathFromAnyLowestPoint(EXAMPLE_DATA).size() - 1);
   }
 }

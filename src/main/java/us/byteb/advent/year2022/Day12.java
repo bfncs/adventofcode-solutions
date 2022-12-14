@@ -11,12 +11,30 @@ public class Day12 {
   public static void main(String[] args) {
     final String input = readFileFromResources("year2022/day12.txt");
 
-    System.out.println("Part 1:" + shortestPath(input).size());
+    System.out.println("Part 1:" + (shortestPathFromMarkedStart(input).size() - 1));
+    System.out.println("Part 2:" + (shortestPathFromAnyLowestPoint(input).size() - 1));
   }
 
-  public static List<Position> shortestPath(final String input) {
+  public static List<Position> shortestPathFromMarkedStart(final String input) {
     final HeightMap map = HeightMap.of(input);
-    Set<Square> changedSquares = new HashSet<>(Set.of(map.start()));
+    return shortestPath(map);
+  }
+
+  public static List<Position> shortestPathFromAnyLowestPoint(final String input) {
+    final HeightMap map = HeightMap.of(input);
+    return map.lowest().stream()
+        .map(start -> shortestPath(map, start))
+        .filter(Objects::nonNull)
+        .min(Comparator.comparing(List::size))
+        .orElseThrow();
+  }
+
+  private static List<Position> shortestPath(final HeightMap map, final Square start) {
+    return shortestPath(map.withReplacedStart(start.position()));
+  }
+
+  private static List<Position> shortestPath(final HeightMap map) {
+    Set<Square> changedSquares = new HashSet<>(Set.of(map.markedStart()));
 
     while (!changedSquares.isEmpty()) {
       final Set<Square> nextChangedSquares = new HashSet<>();
@@ -61,7 +79,7 @@ public class Day12 {
         for (int x = 0; x < line.length; x++) {
           final Position position = new Position(y, x);
           final char value = line[x];
-          final List<Position> pathToStart = value == 'S' ? List.of() : null;
+          final List<Position> pathToStart = value == 'S' ? List.of(position) : null;
           row.add(new Square(position, value, pathToStart));
         }
         data.add(row);
@@ -74,8 +92,14 @@ public class Day12 {
       return data.stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
-    public Square start() {
+    public Square markedStart() {
       return squares().stream().filter(Square::isStart).findAny().orElseThrow();
+    }
+
+    public Set<Square> lowest() {
+      return squares().stream()
+          .filter(square -> square.elevation() == 'a')
+          .collect(Collectors.toSet());
     }
 
     public Square get(final int y, final int x) {
@@ -105,6 +129,34 @@ public class Day12 {
       final Position position = square.position();
       data.get(position.y()).set(position.x(), square);
     }
+
+    public HeightMap withReplacedStart(final Position start) {
+      return new HeightMap(
+          new ArrayList<>(
+              data.stream()
+                  .map(
+                      row ->
+                          (List<Square>)
+                              new ArrayList<>(
+                                  row.stream()
+                                      .map(
+                                          square -> {
+                                            if (square.position().equals(start)) {
+                                              return square
+                                                  .withMark('S')
+                                                  .withShortestPathToStart(
+                                                      List.of(square.position()));
+                                            }
+                                            if (square.mark() == 'S') {
+                                              return square
+                                                  .withMark('a')
+                                                  .withShortestPathToStart(null);
+                                            }
+                                            return square;
+                                          })
+                                      .toList()))
+                  .toList()));
+    }
   }
 
   record Position(int y, int x) {}
@@ -132,6 +184,10 @@ public class Day12 {
 
     public Square withShortestPathToStart(final List<Position> path) {
       return new Square(position, mark, path);
+    }
+
+    public Square withMark(final char mark) {
+      return new Square(position, mark, shortestPathToStart);
     }
   }
 }
