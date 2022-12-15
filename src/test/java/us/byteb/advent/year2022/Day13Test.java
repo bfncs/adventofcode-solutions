@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class Day13Test {
 
-  final String EXAMPLE_DATA =
+  private static final String EXAMPLE_DATA =
       """
       [1,1,3,1,1]
       [1,1,5,1,1]
@@ -60,5 +60,17 @@ class Day13Test {
   @Test
   void partOneExample() {
     assertEquals(13, sumOfIndicesOfCorrectlyOrderedPairs(EXAMPLE_DATA));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(140L, findDecodeKey(EXAMPLE_DATA, DIVIDER_PACKETS));
+  }
+
+  @Test
+  void compareData() {
+    assertEquals(
+        -1, Data.parse("[1,1,3,1,1]").compareTo(Data.parse("[1,[2,[3,[4,[5,6,0]]]],8,9]")));
+    assertEquals(1, Data.parse("[[1],[2,3,4]]").compareTo(Data.parse("[1,1,3,1,1]")));
   }
 }

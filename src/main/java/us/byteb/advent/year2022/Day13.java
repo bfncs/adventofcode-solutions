@@ -3,16 +3,23 @@ package us.byteb.advent.year2022;
 import static java.lang.Integer.parseInt;
 import static us.byteb.advent.Utils.readFileFromResources;
 import static us.byteb.advent.year2022.Day13.Data.OrderCheckResult.*;
+import static us.byteb.advent.year2022.Day13.Data.integer;
+import static us.byteb.advent.year2022.Day13.Data.list;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day13 {
+
+  public static final List<Data> DIVIDER_PACKETS =
+      List.of(list(list(integer(2))), list(list(integer(6))));
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2022/day13.txt");
 
-    System.out.println("Part 1:" + sumOfIndicesOfCorrectlyOrderedPairs(input));
+    System.out.println("Part 1: " + sumOfIndicesOfCorrectlyOrderedPairs(input));
+    System.out.println("Part 2: " + findDecodeKey(input, DIVIDER_PACKETS));
   }
 
   public static int sumOfIndicesOfCorrectlyOrderedPairs(final String input) {
@@ -20,13 +27,31 @@ public class Day13 {
 
     int sum = 0;
     for (int i = 0; i < pairs.size(); i++) {
-      System.out.println("=== PAIR " + (i + 1) + " ==");
       if (pairs.get(i).checkOrder()) {
         sum += i + 1;
       }
     }
 
     return sum;
+  }
+
+  public static long findDecodeKey(final String input, final List<Data> dividerPackets) {
+
+    final List<Data> sorted =
+        Stream.concat(
+                parse(input).stream().flatMap(p -> Stream.of(p.left(), p.right())),
+                dividerPackets.stream())
+            .sorted()
+            .toList();
+
+    long result = 1;
+    for (int i = 0; i < sorted.size(); i++) {
+      if (dividerPackets.contains(sorted.get(i))) {
+        result *= (i + 1);
+      }
+    }
+
+    return result;
   }
 
   public static List<Pair> parse(final String input) {
@@ -51,7 +76,7 @@ public class Day13 {
     }
   }
 
-  sealed interface Data {
+  sealed interface Data extends Comparable<Data> {
     enum OrderCheckResult {
       CORRECT,
       INCORRECT,
@@ -59,14 +84,11 @@ public class Day13 {
     }
 
     static OrderCheckResult checkOrder(final Data left, final Data right) {
-      System.out.println("Compare " + left + " vs " + right);
       if (left instanceof DataInteger leftInt && right instanceof DataInteger rightInt) {
         if (leftInt.value() > rightInt.value()) {
-          System.out.println("Right side is smaller, so incorrect");
           return INCORRECT;
         }
         if (leftInt.value() < rightInt.value()) {
-          System.out.println("Left side is smaller, so correct");
           return CORRECT;
         }
         return INDIFFERENT;
@@ -75,7 +97,6 @@ public class Day13 {
       if ((left instanceof DataList leftList) && (right instanceof DataList rightList)) {
         for (int i = 0; i < leftList.data().size(); i++) {
           if (i >= rightList.data().size()) {
-            System.out.println("Right side is smaller, so " + INCORRECT);
             return INCORRECT;
           }
           final Data leftItem = leftList.data().get(i);
@@ -86,16 +107,17 @@ public class Day13 {
           }
         }
 
-        System.out.println("Left side is smaller, so " + CORRECT);
+        if (leftList.data().size() == rightList.data().size()) {
+          return INDIFFERENT;
+        }
+
         return CORRECT;
       }
 
       if (left instanceof DataInteger) {
-        System.out.println("Mixed types, convert " + left + " to List and retry");
-        return checkOrder(Data.list(left), right);
+        return checkOrder(list(left), right);
       } else {
-        System.out.println("Mixed types, convert " + right + " to List and retry");
-        return checkOrder(left, Data.list(right));
+        return checkOrder(left, list(right));
       }
     }
 
@@ -139,6 +161,15 @@ public class Day13 {
 
     static DataInteger integer(final int value) {
       return new DataInteger(value);
+    }
+
+    @Override
+    default int compareTo(final Data other) {
+      return switch (Data.checkOrder(this, other)) {
+        case CORRECT -> -1;
+        case INCORRECT -> 1;
+        case INDIFFERENT -> 0;
+      };
     }
 
     record DataList(List<Data> data) implements Data {
