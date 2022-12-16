@@ -5,13 +5,18 @@ import static us.byteb.advent.Utils.readFileFromResources;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import us.byteb.advent.year2022.Day14.SimResult.FallingThrough;
+import us.byteb.advent.year2022.Day14.SimResult.Resting;
 
 public class Day14 {
+
+  public static final Point SOURCE = new Point(500, 0);
 
   public static void main(final String[] args) {
     final List<Path> input = parse(readFileFromResources("year2022/day14.txt"));
 
     System.out.println("Part 1: " + findUnitOfSandsBeforeFallthrough(input));
+    System.out.println("Part 2: " + findUnitOfSandsBeforeSourceBlocked(input));
   }
 
   public static List<Path> parse(final String input) {
@@ -24,10 +29,46 @@ public class Day14 {
             .flatMap(path -> path.findAllCoveredPoints().stream())
             .collect(Collectors.toSet());
 
-    final int maxY = blocked.stream().mapToInt(Point::y).max().orElseThrow();
+    long numResting = 0;
 
-    long sandInRest = 0;
-    Point sand = new Point(500, 0);
+    while (simulateFallingSand(blocked, false, Integer.MAX_VALUE) instanceof Resting resting) {
+      blocked.add(resting.position());
+      numResting++;
+    }
+
+    return numResting;
+  }
+
+  public static long findUnitOfSandsBeforeSourceBlocked(final List<Path> paths) {
+    final Set<Point> blocked =
+        paths.stream()
+            .flatMap(path -> path.findAllCoveredPoints().stream())
+            .collect(Collectors.toSet());
+    final int floorY = blocked.stream().mapToInt(Point::y).max().orElseThrow() + 1;
+
+    long numResting = 0;
+
+    while (simulateFallingSand(blocked, true, floorY) instanceof Resting resting
+        && !resting.position().equals(SOURCE)) {
+      blocked.add(resting.position());
+      numResting++;
+    }
+
+    return numResting + 1;
+  }
+
+  sealed interface SimResult {
+    record FallingThrough() implements SimResult {}
+
+    record Resting(Point position) implements SimResult {}
+  }
+
+  private static SimResult simulateFallingSand(
+      final Set<Point> blocked, final boolean assumeFloor, final int floorY) {
+    final int maxBlockedY = blocked.stream().mapToInt(Point::y).max().orElseThrow();
+    final int maxY = assumeFloor ? floorY - 1 : maxBlockedY;
+
+    Point sand = SOURCE;
 
     while (sand.y() <= maxY) {
 
@@ -49,12 +90,10 @@ public class Day14 {
         continue;
       }
 
-      blocked.add(sand);
-      sandInRest++;
-      sand = new Point(500, 0);
+      return new Resting(sand);
     }
 
-    return sandInRest;
+    return assumeFloor ? new Resting(new Point(sand.x(), floorY)) : new FallingThrough();
   }
 
   record Path(List<Point> points) {

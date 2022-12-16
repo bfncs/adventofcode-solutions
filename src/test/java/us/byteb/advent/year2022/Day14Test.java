@@ -29,4 +29,9 @@ class Day14Test {
   void partOneExample() {
     assertEquals(24, findUnitOfSandsBeforeFallthrough(parse(EXAMPLE_DATA)));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(93, findUnitOfSandsBeforeSourceBlocked(parse(EXAMPLE_DATA)));
+  }
 }
