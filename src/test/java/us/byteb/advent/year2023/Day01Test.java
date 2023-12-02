@@ -17,9 +17,32 @@ class Day01Test {
             treb7uchet
             """);
 
+  private static final List<String> part2ExampleDate =
+      parseInput(
+          """
+            two1nine
+            eightwothree
+            abcone2threexyz
+            xtwone3four
+            4nineeightseven2
+            zoneight234
+            7pqrstsixteen
+            """);
+
   @Test
   void partOneExample() {
-    assertEquals(142L, sumCalibrationValues(part1ExampleDate));
+    assertEquals(142L, sumCalibrationValues(part1ExampleDate, Day01::parseDigits));
   }
 
+  @Test
+  void partTwoExample() {
+    assertEquals(281L, sumCalibrationValues(part2ExampleDate, Day01::parseDigitsAndWords));
+  }
+
+  @Test
+  void parseDigitsAndWords() {
+    assertEquals(13L, Day01.parseDigitsAndWords("onetwothree"));
+    assertEquals(12L, Day01.parseDigitsAndWords("jhctmxconelfkgmprnfourseven8twofkjvlvnjgd"));
+    assertEquals(28L, Day01.parseDigitsAndWords("2fourseven1oneights"));
+  }
 }
