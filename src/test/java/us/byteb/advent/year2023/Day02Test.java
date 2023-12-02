@@ -22,4 +22,9 @@ class Day02Test {
   void partOneExample() {
     assertEquals(8L, sumOfIdsOfPossibleGames(part1ExampleDate, 12, 13, 14));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(2286L, sumOfPowerOfMinimumSet(part1ExampleDate));
+  }
 }

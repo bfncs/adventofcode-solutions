@@ -13,6 +13,7 @@ public class Day02 {
     final List<Game> input = parseInput(readFileFromResources("year2023/day02.txt"));
 
     System.out.println("Part 1: " + sumOfIdsOfPossibleGames(input, 12, 13, 14));
+    System.out.println("Part 2: " + sumOfPowerOfMinimumSet(input));
   }
 
   static List<Game> parseInput(final String input) {
@@ -32,6 +33,10 @@ public class Day02 {
               return game.id();
             })
         .sum();
+  }
+
+  static long sumOfPowerOfMinimumSet(final List<Game> games) {
+    return games.stream().mapToLong(Game::powerOfMinimumSet).sum();
   }
 
   record Game(long id, List<Map<Color, Long>> sets) {
@@ -61,6 +66,20 @@ public class Day02 {
               .toList();
 
       return new Game(id, sets);
+    }
+
+    public long powerOfMinimumSet() {
+      long red = 0;
+      long green = 0;
+      long blue = 0;
+
+      for (final Map<Color, Long> set : sets) {
+        red = Math.max(red, set.getOrDefault(Color.RED, 0L));
+        green = Math.max(green, set.getOrDefault(Color.GREEN, 0L));
+        blue = Math.max(blue, set.getOrDefault(Color.BLUE, 0L));
+      }
+
+      return red * green * blue;
     }
   }
 
