@@ -4,8 +4,6 @@ import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Day02 {
 
@@ -25,74 +23,73 @@ public class Day02 {
     return games.stream()
         .mapToLong(
             game -> {
-              for (final Map<Color, Long> set : game.sets()) {
-                if (set.getOrDefault(Color.RED, 0L) > maxRed) return 0;
-                if (set.getOrDefault(Color.GREEN, 0L) > maxGreen) return 0;
-                if (set.getOrDefault(Color.BLUE, 0L) > maxBlue) return 0;
-              }
-              return game.id();
+              final Set miniumSet = game.miniumSet();
+              final boolean isValid =
+                  miniumSet.red() > maxRed
+                      || miniumSet.green() > maxGreen
+                      || miniumSet.blue() > maxBlue;
+
+              return isValid ? 0 : game.id();
             })
         .sum();
   }
 
   static long sumOfPowerOfMinimumSet(final List<Game> games) {
-    return games.stream().mapToLong(Game::powerOfMinimumSet).sum();
+    return games.stream().mapToLong(game -> game.miniumSet().power()).sum();
   }
 
-  record Game(long id, List<Map<Color, Long>> sets) {
+  record Game(long id, List<Set> sets) {
     public static Game parse(final String str) {
       final String[] parts = str.split(":");
       if (parts.length != 2) throw new IllegalStateException();
       final long id = Long.parseLong(parts[0].substring("Game ".length()));
 
       final String[] setsStr = parts[1].split(";");
-      final List<Map<Color, Long>> sets =
+      final List<Set> sets =
           Arrays.stream(setsStr)
               .map(
                   setStr -> {
-                    final List<Map.Entry<Color, Long>> entries =
-                        Arrays.stream(setStr.split(","))
-                            .map(String::trim)
-                            .map(
-                                tupleStr -> {
-                                  final String[] tuple = tupleStr.split(" ");
-                                  if (tuple.length != 2) throw new IllegalStateException();
-                                  return Map.entry(Color.parse(tuple[1]), Long.parseLong(tuple[0]));
-                                })
-                            .toList();
-                    return entries.stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                    long red = 0;
+                    long green = 0;
+                    long blue = 0;
+
+                    for (final String tupleStr : setStr.split(",")) {
+                      final String[] tuple = tupleStr.trim().split(" ");
+                      final long count = Long.parseLong(tuple[0]);
+                      if (tuple.length != 2) throw new IllegalStateException();
+                      switch (tuple[1]) {
+                        case "red" -> red = count;
+                        case "green" -> green = count;
+                        case "blue" -> blue = count;
+                        default -> throw new IllegalStateException();
+                      }
+                    }
+
+                    return new Set(red, green, blue);
                   })
               .toList();
 
       return new Game(id, sets);
     }
 
-    public long powerOfMinimumSet() {
+    public Set miniumSet() {
       long red = 0;
       long green = 0;
       long blue = 0;
 
-      for (final Map<Color, Long> set : sets) {
-        red = Math.max(red, set.getOrDefault(Color.RED, 0L));
-        green = Math.max(green, set.getOrDefault(Color.GREEN, 0L));
-        blue = Math.max(blue, set.getOrDefault(Color.BLUE, 0L));
+      for (final Set set : sets) {
+        red = Math.max(red, set.red());
+        green = Math.max(green, set.green());
+        blue = Math.max(blue, set.blue());
       }
 
-      return red * green * blue;
+      return new Set(red, green, blue);
     }
   }
 
-  enum Color {
-    RED,
-    GREEN,
-    BLUE;
-
-    public static Color parse(final String str) {
-      return Arrays.stream(values())
-          .filter(color -> color.name().equalsIgnoreCase(str))
-          .findFirst()
-          .orElseThrow();
+  record Set(long red, long green, long blue) {
+    long power() {
+      return red * green * blue;
     }
   }
 }
