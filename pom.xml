@@ -50,8 +50,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <release>19</release>
-                    <compilerArgs>--enable-preview</compilerArgs>
+                    <release>21</release>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -59,7 +60,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
-                    <argLine>--enable-preview</argLine>
                     <parallel>classes</parallel>
                 </configuration>
             </plugin>
