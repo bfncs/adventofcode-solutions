@@ -5,6 +5,8 @@ import static us.byteb.advent.Utils.readFileFromResources;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class Day03 {
 
@@ -12,10 +14,34 @@ public class Day03 {
     final String input = readFileFromResources("year2023/day03.txt");
 
     System.out.println("Part 1: " + sumOfPartNumbers(input));
+    System.out.println("Part 2: " + sumOfGearRatios(input));
   }
 
   static long sumOfPartNumbers(final String input) {
     return parsePartNumbers(input).stream().mapToLong(PartNumber::number).sum();
+  }
+
+  static long sumOfGearRatios(final String input) {
+    final Set<PartNumber> parts = parsePartNumbers(input);
+    final Set<Symbol> symbols = parts.stream().map(PartNumber::symbol).collect(Collectors.toSet());
+
+    return symbols.stream()
+        .flatMapToLong(
+            symbol -> {
+              if (symbol.symbol() != '*') {
+                return LongStream.empty();
+              }
+              final Set<PartNumber> adjacentParts =
+                  parts.stream()
+                      .filter(part -> part.symbol().equals(symbol))
+                      .collect(Collectors.toSet());
+              if (adjacentParts.size() != 2) {
+                return LongStream.empty();
+              }
+              return LongStream.of(
+                  adjacentParts.stream().mapToLong(PartNumber::number).reduce(1, (a, b) -> a * b));
+            })
+        .sum();
   }
 
   private static Set<PartNumber> parsePartNumbers(final String input) {
@@ -28,10 +54,10 @@ public class Day03 {
         }
         final long number = parseNumberStartingAt(chars, y, x);
 
-        final Optional<Character> symbol =
+        final Optional<Symbol> symbol =
             findSymbolAround(chars, y, x, x + String.valueOf(number).length());
         if (symbol.isPresent()) {
-          result.add(new PartNumber(number, x, y, symbol.get()));
+          result.add(new PartNumber(number, y, x, symbol.get()));
         }
         x += String.valueOf(number).length();
       }
@@ -40,7 +66,7 @@ public class Day03 {
     return result;
   }
 
-  private static Optional<Character> findSymbolAround(
+  private static Optional<Symbol> findSymbolAround(
       final char[][] chars, final int posY, final int posX, final int posXEnd) {
     final int minY = posY > 0 ? posY - 1 : posY;
     final int maxY = posY < chars.length - 1 ? posY + 1 : posY;
@@ -54,7 +80,7 @@ public class Day03 {
         }
         final char candidate = chars[y][x];
         if (candidate != '.' && !isDigit(candidate)) {
-          return Optional.of(candidate);
+          return Optional.of(new Symbol(candidate, y, x));
         }
       }
     }
@@ -74,5 +100,7 @@ public class Day03 {
     return character >= '0' && character <= '9';
   }
 
-  record PartNumber(long number, int x, int y, char symbol) {}
+  record PartNumber(long number, int y, int x, Symbol symbol) {}
+
+  record Symbol(char symbol, int y, int x) {}
 }

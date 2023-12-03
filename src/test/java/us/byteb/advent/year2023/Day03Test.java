@@ -25,4 +25,9 @@ class Day03Test {
   void partOneExample() {
     assertEquals(4361L, sumOfPartNumbers(part1ExampleDate));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(467835L, sumOfGearRatios(part1ExampleDate));
+  }
 }
