@@ -13,6 +13,15 @@ public class Day04 {
     final String input = readFileFromResources("year2016/day04.txt");
 
     System.out.println("Part 1: " + sumOfSectorIdsOfRealRooms(parseInput(input)));
+    System.out.println("Part 2: " + findNorthPoleRoom(parseInput(input)));
+  }
+
+  private static long findNorthPoleRoom(final Set<Room> rooms) {
+    return rooms.stream()
+        .filter(room -> room.decrypt().contains("northpole"))
+        .findFirst()
+        .orElseThrow()
+        .sectorId();
   }
 
   static Set<Room> parseInput(final String input) {
@@ -37,7 +46,7 @@ public class Day04 {
       return checksum.equals(actualChecksum());
     }
 
-    private String actualChecksum() {
+    String actualChecksum() {
       final Map<Character, Long> charCounts =
           name.chars()
               .mapToObj(c -> (char) c)
@@ -50,6 +59,18 @@ public class Day04 {
                   .thenComparing(Map.Entry.comparingByKey()))
           .map(Map.Entry::getKey)
           .limit(5)
+          .map(String::valueOf)
+          .collect(Collectors.joining());
+    }
+
+    public String decrypt() {
+      return name.chars()
+          .mapToObj(
+              c -> {
+                final char ch = (char) c;
+                if (ch == '-') return ' ';
+                return (char) ((((ch - 'a') + sectorId) % 26) + 'a');
+              })
           .map(String::valueOf)
           .collect(Collectors.joining());
     }

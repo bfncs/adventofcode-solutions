@@ -21,4 +21,9 @@ class Day04Test {
     final Set<Room> rooms = parseInput(PART1_DATA);
     assertEquals(1514L, sumOfSectorIdsOfRealRooms(rooms));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals("very encrypted name", Room.parse("qzmt-zixmtkozy-ivhz-343[zimth]").decrypt());
+  }
 }
