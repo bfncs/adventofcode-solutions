@@ -9,6 +9,6 @@ class Day03Test {
 
   @Test
   void partOneExample() {
-    assertFalse(isValidTriangle(5, 10, 25));
+    assertFalse(new Triangle(5, 10, 25).isValid());
   }
 }
