@@ -10,4 +10,9 @@ class Day05Test {
   void partOneExample() {
     assertEquals("18f47a30", findPassword("abc"));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals("05ace8e3", findPasswordPosition("abc"));
+  }
 }

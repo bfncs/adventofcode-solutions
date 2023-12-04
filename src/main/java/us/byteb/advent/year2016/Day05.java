@@ -1,13 +1,20 @@
 package us.byteb.advent.year2016;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day05 {
 
+  private static final MessageDigest DIGEST = digest();
+  private static final byte[] HEX_ARRAY = "0123456789abcdef".getBytes(StandardCharsets.US_ASCII);
+  private static final String INPUT = "ffykfhsq";
+
   public static void main(String[] args) {
-    System.out.println("Part 1: " + findPassword("ffykfhsq"));
+    System.out.println("Part 1: " + findPassword(INPUT));
+    System.out.println("Part 2: " + findPasswordPosition(INPUT));
   }
 
   static String findPassword(final String input) {
@@ -24,20 +31,58 @@ public class Day05 {
     return password.toString();
   }
 
+  static String findPasswordPosition(final String input) {
+    final Character[] password = new Character[8];
+    long index = 0;
+    while (containsNull(password)) {
+      final String candidate = md5(input + index);
+      index++;
+
+      if (candidate.startsWith("00000")) {
+        final int position;
+        try {
+          position = Integer.parseInt(candidate.substring(5, 6));
+        } catch (NumberFormatException e) {
+          continue;
+        }
+
+        if (position < 0 || position > 7 || password[position] != null) {
+          continue;
+        }
+        password[position] = candidate.charAt(6);
+      }
+    }
+
+    return Arrays.stream(password).map(String::valueOf).collect(Collectors.joining());
+  }
+
+  private static <T> boolean containsNull(final T[] items) {
+    for (final T item : items) {
+      if (item == null) return true;
+    }
+    return false;
+  }
+
   static String md5(final String input) {
-    final MessageDigest md;
+    return bytesToHex(DIGEST.digest(input.getBytes()));
+  }
+
+  private static MessageDigest digest() {
     try {
-      md = MessageDigest.getInstance("MD5");
+      return MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException(e);
     }
-    byte[] digest = md.digest(input.getBytes());
+  }
 
-    final StringBuilder sb = new StringBuilder();
-    for (byte b : digest) {
-      sb.append(String.format("%02x", b));
+  private static String bytesToHex(byte[] bytes) {
+    byte[] hexChars = new byte[bytes.length * 2];
+    for (int j = 0; j < bytes.length; j++) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+      hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
     }
 
-    return sb.toString();
+    return new String(hexChars, StandardCharsets.UTF_8);
   }
 }
