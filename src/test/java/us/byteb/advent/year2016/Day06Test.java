@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class Day06Test {
 
-  private static final String PART1_DATA =
+  private static final String EXAMPLE_DATA =
       """
           eedadn
           drvtee
@@ -29,6 +29,11 @@ class Day06Test {
 
   @Test
   void partOneExample() {
-    assertEquals("easter", decodeByMostFrequentPerColumn(PART1_DATA));
+    assertEquals("easter", decode(EXAMPLE_DATA, Day06::mostFrequentCharacterInColumn));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals("advent", decode(EXAMPLE_DATA, Day06::leastFrequentCharacterInColumn));
   }
 }
