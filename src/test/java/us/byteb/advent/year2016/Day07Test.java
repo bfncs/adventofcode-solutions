@@ -15,4 +15,12 @@ class Day07Test {
     assertFalse(isSupportingTls("aaaa[qwer]tyui"));
     assertTrue(isSupportingTls("ioxxoj[asdfgh]zxcvbn"));
   }
+
+  @Test
+  void partTwoExample() {
+    assertTrue(isSupportingSsl("aba[bab]xyz"));
+    assertFalse(isSupportingSsl("xyx[xyx]xyx"));
+    assertTrue(isSupportingSsl("aaa[kek]eke"));
+    assertTrue(isSupportingSsl("zazbz[bzb]cdb"));
+  }
 }
