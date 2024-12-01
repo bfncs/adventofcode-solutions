@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 class Day01Test {
 
-  private static final String PART1_DATA =
-          """
+  private static final String EXAMPLE_DATA =
+      """
           3   4
           4   3
           2   5
@@ -19,9 +19,13 @@ class Day01Test {
 
   @Test
   void partOneExample() {
-    final Comparison data = parseInput(PART1_DATA);
-    assertEquals(
-        11L, totalDistance(data));
+    final Comparison data = parseInput(EXAMPLE_DATA);
+    assertEquals(11L, totalDistance(data));
   }
 
+  @Test
+  void partTwoExample() {
+    final Comparison data = parseInput(EXAMPLE_DATA);
+    assertEquals(31L, similarityScore(data));
+  }
 }
