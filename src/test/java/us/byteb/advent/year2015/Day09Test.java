@@ -20,4 +20,10 @@ class Day09Test {
     final List<DistanceDef> input = parseInput(EXAMPLE_DATA);
     assertEquals(605, shortestPath(input).totalDistance());
   }
+
+  @Test
+  void partTwoExample() {
+    final List<DistanceDef> input = parseInput(EXAMPLE_DATA);
+    assertEquals(982, longestPath(input).totalDistance());
+  }
 }

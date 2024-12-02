@@ -14,6 +14,7 @@ public class Day09 {
     final List<DistanceDef> input = parseInput(readFileFromResources("year2015/day09.txt"));
 
     System.out.println("Part 1: " + shortestPath(input));
+    System.out.println("Part 2: " + longestPath(input));
   }
 
   static List<DistanceDef> parseInput(final String input) {
@@ -21,14 +22,26 @@ public class Day09 {
   }
 
   static Path shortestPath(final List<DistanceDef> distances) {
+    return findPath(distances, true);
+  }
+
+  static Path longestPath(final List<DistanceDef> distances) {
+    return findPath(distances, false);
+  }
+
+  private static Path findPath(
+      final List<DistanceDef> distances, final boolean selectShortestPath) {
     final Set<String> locations =
         distances.stream().flatMap(d -> Stream.of(d.start(), d.end())).collect(Collectors.toSet());
     final Set<List<String>> permutations = permutations(locations);
 
-    Path result = new Path(Collections.emptyList(), Long.MAX_VALUE);
+    Path result =
+        new Path(Collections.emptyList(), selectShortestPath ? Long.MAX_VALUE : Long.MIN_VALUE);
     for (final List<String> path : permutations) {
       final long distance = distance(path, distances);
-      if (distance < result.totalDistance()) {
+      if (selectShortestPath
+          ? distance < result.totalDistance()
+          : distance > result.totalDistance()) {
         result = new Path(path, distance);
       }
     }
