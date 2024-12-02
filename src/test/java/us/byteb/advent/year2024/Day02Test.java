@@ -3,9 +3,8 @@ package us.byteb.advent.year2024;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static us.byteb.advent.year2024.Day02.*;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class Day02Test {
 
