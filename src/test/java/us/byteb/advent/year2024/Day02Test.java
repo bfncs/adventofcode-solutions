@@ -1,7 +1,6 @@
 package us.byteb.advent.year2024;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static us.byteb.advent.year2024.Day01.totalDistance;
 import static us.byteb.advent.year2024.Day02.*;
 
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,14 @@ class Day02Test {
   @Test
   void partOneExample() {
     final List<List<Long>> data = parseInput(EXAMPLE_DATA);
-    final List<Boolean> result = data.stream().map(report -> isSafe(report)).toList();
+    final List<Boolean> result = data.stream().map(Day02::isSafe).toList();
     assertEquals(List.of(true, false, false, false, false, true), result);
   }
 
+  @Test
+  void partTwoExample() {
+    final List<List<Long>> data = parseInput(EXAMPLE_DATA);
+    final List<Boolean> result = data.stream().map(Day02::isSafeWithProblemDampener).toList();
+    assertEquals(List.of(true, false, false, true, true, true), result);
+  }
 }
