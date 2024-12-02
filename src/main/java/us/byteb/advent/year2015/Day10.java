@@ -8,6 +8,7 @@ public class Day10 {
     final String input = "1321131112";
 
     System.out.println("Part 1: " + lookAndSay(input, 40).length());
+    System.out.println("Part 2: " + lookAndSay(input, 50).length());
   }
 
   static String lookAndSay(final String input, final int times) {
