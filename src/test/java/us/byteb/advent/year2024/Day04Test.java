@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class Day04Test {
 
-  private static final String EXAMPLE_PART1 =
+  private static final String EXAMPLE_DATA =
       """
       MMMSXXMASM
       MSAMXMSMSA
@@ -23,6 +23,11 @@ class Day04Test {
 
   @Test
   void partOneExample() {
-    assertEquals(18, searchWord(EXAMPLE_PART1));
+    assertEquals(18, searchWord(EXAMPLE_DATA, "XMAS").size());
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(9, searchXShapeWord(EXAMPLE_DATA, "MAS").size());
   }
 }
