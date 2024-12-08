@@ -50,4 +50,19 @@ class Day05Test {
         result);
     assertEquals(143L, sumOfMiddleNums(result));
   }
+
+  @Test
+  void partTwoExample() {
+    final PuzzleInput input = parseInput(EXAMPLE_DATA);
+    final Set<List<Integer>> result = filterOnlyFixedIncorrectlyOrdered(input);
+    /*
+     61|13
+     61|29
+     29|13
+    */
+    assertEquals(
+        Set.of(List.of(97, 75, 47, 61, 53), List.of(61, 29, 13), List.of(97, 75, 47, 29, 13)),
+        result);
+    assertEquals(123L, sumOfMiddleNums(result));
+  }
 }

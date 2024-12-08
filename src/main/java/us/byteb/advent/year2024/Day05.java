@@ -3,7 +3,6 @@ package us.byteb.advent.year2024;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Day05 {
@@ -11,6 +10,7 @@ public class Day05 {
   public static void main(String[] args) {
     final PuzzleInput input = parseInput(readFileFromResources("year2024/day05.txt"));
     System.out.println("Part 1: " + sumOfMiddleNums(filterCorrectlyOrdered(input)));
+    System.out.println("Part 2: " + sumOfMiddleNums(filterOnlyFixedIncorrectlyOrdered(input)));
   }
 
   public static PuzzleInput parseInput(final String input) {
@@ -37,10 +37,38 @@ public class Day05 {
     return new PuzzleInput(updates, rules);
   }
 
+  public static long sumOfMiddleNums(final Set<List<Integer>> updates) {
+    return updates.stream().mapToLong(update -> update.get(update.size() / 2)).sum();
+  }
+
   public static Set<List<Integer>> filterCorrectlyOrdered(final PuzzleInput input) {
     return input.updates().stream()
         .filter(update -> isUpdateRuleCompliant(update, input.rules()))
         .collect(Collectors.toSet());
+  }
+
+  public static Set<List<Integer>> filterOnlyFixedIncorrectlyOrdered(final PuzzleInput input) {
+    final Set<List<Integer>> incorrectlyOrdered =
+        input.updates().stream()
+            .filter(update -> !isUpdateRuleCompliant(update, input.rules()))
+            .collect(Collectors.toSet());
+
+    return incorrectlyOrdered.stream()
+        .map(update -> update.stream().sorted(rulesComparator(input.rules())).toList())
+        .collect(Collectors.toSet());
+  }
+
+  private static Comparator<Integer> rulesComparator(final Set<PageOrderingRule> rules) {
+    return (a, b) -> {
+      if (a.equals(b)) return 0;
+      final PageOrderingRule rule =
+          rules.stream()
+              .filter(
+                  r -> (r.before() == a && r.after() == b) || (r.before() == b && r.after() == a))
+              .findAny()
+              .orElseThrow();
+      return rule.before() == a ? -1 : 1;
+    };
   }
 
   private static boolean isUpdateRuleCompliant(
@@ -53,16 +81,6 @@ public class Day05 {
       }
     }
     return true;
-  }
-
-  private static Predicate<List<Integer>> getListPredicate() {
-    return update -> {
-      return true;
-    };
-  }
-
-  public static long sumOfMiddleNums(final Set<List<Integer>> updates) {
-    return updates.stream().mapToLong(update -> update.get(update.size() / 2)).sum();
   }
 
   public record PuzzleInput(Set<List<Integer>> updates, Set<PageOrderingRule> rules) {}
