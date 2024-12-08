@@ -2,7 +2,9 @@ package us.byteb.advent.year2024;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static us.byteb.advent.year2024.Day07.*;
+import static us.byteb.advent.year2024.Day07.Op.*;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class Day07Test {
@@ -22,6 +24,12 @@ class Day07Test {
 
   @Test
   void partOneExample() {
-    assertEquals(3749L, totalCalibrationResult(parseInput(EXAMPLE_DATA)));
+    assertEquals(3749L, totalCalibrationResult(parseInput(EXAMPLE_DATA), Set.of(ADD, MULTIPLY)));
+  }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(
+        11387L, totalCalibrationResult(parseInput(EXAMPLE_DATA), Set.of(ADD, MULTIPLY, CONCAT)));
   }
 }

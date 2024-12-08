@@ -1,6 +1,7 @@
 package us.byteb.advent.year2024;
 
 import static us.byteb.advent.Utils.readFileFromResources;
+import static us.byteb.advent.year2024.Day07.Op.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,16 +11,17 @@ public class Day07 {
 
   public static void main(String[] args) {
     final List<Equation> input = parseInput(readFileFromResources("year2024/day07.txt"));
-    System.out.println("Part 1: " + totalCalibrationResult(input));
+    System.out.println("Part 1: " + totalCalibrationResult(input, Set.of(ADD, MULTIPLY)));
+    System.out.println("Part 2: " + totalCalibrationResult(input, Set.of(ADD, MULTIPLY, CONCAT)));
   }
 
   public static List<Equation> parseInput(final String input) {
     return input.lines().map(Equation::parse).toList();
   }
 
-  public static long totalCalibrationResult(final List<Equation> equations) {
+  public static long totalCalibrationResult(final List<Equation> equations, final Set<Op> ops) {
     return equations.stream()
-        .filter(Equation::canBeSolved)
+        .filter(equation -> equation.canBeSolved(ops))
         .mapToLong(Equation::expectedResult)
         .sum();
   }
@@ -33,8 +35,7 @@ public class Day07 {
       return new Equation(Long.parseLong(parts[0]), operands);
     }
 
-    boolean canBeSolved() {
-      final List<Op> ops = Arrays.stream(Op.values()).toList();
+    boolean canBeSolved(final Collection<Op> ops) {
       final Set<List<Op>> opCombinations = combinations(ops, operands().size() - 1);
       for (final List<Op> combination : opCombinations) {
         long result = operands().getFirst();
@@ -43,6 +44,7 @@ public class Day07 {
               switch (combination.get(i)) {
                 case ADD -> result + operands.get(i + 1);
                 case MULTIPLY -> result * operands.get(i + 1);
+                case CONCAT -> Long.parseLong(String.valueOf(result) + operands.get(i + 1));
               };
         }
         if (result == expectedResult) {
@@ -70,8 +72,9 @@ public class Day07 {
     }
   }
 
-  enum Op {
+  public enum Op {
     ADD,
-    MULTIPLY
+    MULTIPLY,
+    CONCAT
   }
 }
