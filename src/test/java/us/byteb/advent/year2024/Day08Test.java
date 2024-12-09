@@ -44,4 +44,9 @@ class Day08Test {
             new Position(11, 10)),
         findUniqueAntinodeLocations(EXAMPLE_DATA));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(34L, findUniqueAntinodeLocations(EXAMPLE_DATA, true).size());
+  }
 }

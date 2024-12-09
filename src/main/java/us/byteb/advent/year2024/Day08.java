@@ -4,6 +4,7 @@ import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day08 {
 
@@ -12,9 +13,14 @@ public class Day08 {
   public static void main(String[] args) {
     final String input = readFileFromResources("year2024/day08.txt");
     System.out.println("Part 1: " + findUniqueAntinodeLocations(input).size());
+    System.out.println("Part 2: " + findUniqueAntinodeLocations(input, true).size());
   }
 
   public static Set<Position> findUniqueAntinodeLocations(final String input) {
+    return findUniqueAntinodeLocations(input, false);
+  }
+
+  public static Set<Position> findUniqueAntinodeLocations(final String input, boolean countRepeat) {
     final char[][] map = input.lines().map(String::toCharArray).toArray(char[][]::new);
 
     final Map<Character, List<Position>> frequenciesByPosition = new HashMap<>();
@@ -39,35 +45,77 @@ public class Day08 {
         for (int j = i + 1; j < positions.size(); j++) {
           final Position firstPos = positions.get(i);
           final Position secondPos = positions.get(j);
-          final Set<Position> antinodes = findAntinodes(firstPos, secondPos);
+          if (countRepeat) {
+            result.add(firstPos);
+            result.add(secondPos);
+          }
+          final Set<Position> antinodes =
+              findAntinodes(firstPos, secondPos, countRepeat, map.length, map[0].length);
           result.addAll(antinodes);
         }
       }
     }
 
-    return result.stream()
-        .filter(
-            pos -> pos.y() >= 0 && pos.y() < map.length && pos.x() >= 0 && pos.x() < map[0].length)
-        .collect(Collectors.toSet());
+    return result;
   }
 
-  private static Set<Position> findAntinodes(final Position a, final Position b) {
+  private static Set<Position> findAntinodes(
+      final Position a, final Position b, boolean countRepeat, final int maxY, final int maxX) {
     final int dY = Math.abs(b.y() - a.y());
     final int dX = Math.abs(b.x() - a.x());
 
+    final int adY, adX, bdY, bdX;
     if (a.y() <= b.y()) {
       if (a.x() <= b.x()) {
-        return Set.of(new Position(a.y() - dY, a.x() - dX), new Position(b.y() + dY, b.x() + dX));
+        adY = -dY;
+        adX = -dX;
+        bdY = dY;
+        bdX = dX;
       } else {
-        return Set.of(new Position(a.y() - dY, a.x() + dX), new Position(b.y() + dY, b.x() - dX));
+        adY = -dY;
+        adX = dX;
+        bdY = dY;
+        bdX = -dX;
       }
     } else {
       if (a.x() <= b.x()) {
-        return Set.of(new Position(a.y() + dY, a.x() - dX), new Position(b.y() - dY, b.x() + dX));
+        adY = dY;
+        adX = -dX;
+        bdY = -dY;
+        bdX = dX;
       } else {
-        return Set.of(new Position(a.y() + dY, a.x() + dX), new Position(b.y() - dY, b.x() - dX));
+        adY = dY;
+        adX = dX;
+        bdY = -dY;
+        bdX = -dX;
       }
     }
+    final int maxPositions = countRepeat ? Integer.MAX_VALUE : 1;
+    return Stream.concat(
+            findPositions(a, adY, adX, maxPositions, maxY, maxX).stream(),
+            findPositions(b, bdY, bdX, maxPositions, maxY, maxX).stream())
+        .collect(Collectors.toSet());
+  }
+
+  private static Set<Position> findPositions(
+      final Position start,
+      final int dY,
+      final int dX,
+      final int maxPositions,
+      final int maxY,
+      final int maxX) {
+    final Set<Position> result = new HashSet<>();
+    Position pos = start;
+
+    while (result.size() < maxPositions) {
+      pos = new Position(pos.y() + dY, pos.x() + dX);
+      if ((pos.y() < 0 || pos.y() >= maxY) || (pos.x() < 0 || pos.x() >= maxX)) {
+        break;
+      }
+      result.add(pos);
+    }
+
+    return result;
   }
 
   public record Position(int y, int x) {}
