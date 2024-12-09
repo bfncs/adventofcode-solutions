@@ -24,9 +24,10 @@ public class Day09 {
   }
 
   public static List<BlockRange> compact(final List<BlockRange> input) {
-    final List<BlockRange> result = new LinkedList<>(input);
+    final List<BlockRange> result = new ArrayList<>(input);
     while (true) {
-      BlockRange toBeMoved = findRightmostContentBlockPosition(result);
+      int toBeMovedPos = findRightmostContentBlockPosition(result);
+      BlockRange toBeMoved = result.get(toBeMovedPos);
       while (toBeMoved.length() > 0) {
         for (int i = 0; i < result.size(); i++) {
           final BlockRange currentBlock = result.get(i);
@@ -41,14 +42,11 @@ public class Day09 {
               result.set(i, toBeMoved.withLength(currentBlock.length()));
               toBeMoved = toBeMoved.withLength(toBeMoved.length() - currentBlock.length());
             } else {
-              for (int j = result.size() - 1; j >= i; j--) {
-                if (result.get(j).content().equals(toBeMoved.content)) {
-                  result.set(j, free(result.get(j).length()));
-                }
-              }
+              result.set(toBeMovedPos, free(result.get(toBeMovedPos).length()));
               result.remove(i);
               result.add(i, free(currentBlock.length() - toBeMoved.length()));
               result.add(i, toBeMoved);
+              toBeMovedPos++;
               toBeMoved = toBeMoved.withLength(0);
               break;
             }
@@ -77,7 +75,7 @@ public class Day09 {
   }
 
   private static List<BlockRange> mergeContiguousFreeBlocks(final List<BlockRange> input) {
-    final LinkedList<BlockRange> result = new LinkedList<>(input);
+    final List<BlockRange> result = new ArrayList<>(input);
     for (int i = input.size() - 2; i >= 0; i--) {
       if (result.get(i).content() instanceof Content.Free
           && result.get(i + 1).content() instanceof Content.Free) {
@@ -88,10 +86,10 @@ public class Day09 {
     return result;
   }
 
-  private static BlockRange findRightmostContentBlockPosition(final List<BlockRange> result) {
+  private static int findRightmostContentBlockPosition(final List<BlockRange> result) {
     for (int i = result.size() - 1; i >= 0; i--) {
       if (result.get(i).content() instanceof Content.Id) {
-        return result.get(i);
+        return i;
       }
     }
     throw new IllegalStateException();
