@@ -120,10 +120,11 @@ public class Day02 {
       return switch (this) {
         case LOOSE -> opponent.defeats();
         case DRAW -> opponent;
-        case WIN -> Arrays.stream(Hand.values())
-            .filter(hand -> hand != opponent && hand != opponent.defeats())
-            .findFirst()
-            .orElseThrow();
+        case WIN ->
+            Arrays.stream(Hand.values())
+                .filter(hand -> hand != opponent && hand != opponent.defeats())
+                .findFirst()
+                .orElseThrow();
       };
     }
   }

@@ -94,8 +94,9 @@ public class Day05 {
           System.out.println("HALT");
           return output;
         }
-        default -> throw new UnsupportedOperationException(
-            "Unknown op candidate %s at pos %d before end".formatted(op, pos));
+        default ->
+            throw new UnsupportedOperationException(
+                "Unknown op candidate %s at pos %d before end".formatted(op, pos));
       }
     }
 

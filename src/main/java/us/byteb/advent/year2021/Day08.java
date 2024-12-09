@@ -33,9 +33,10 @@ public class Day08 {
             value ->
                 switch (value.size()) {
                   case SEGMENTS_DIGIT_ONE,
-                      SEGMENTS_DIGIT_FOUR,
-                      SEGMENTS_DIGIT_SEVEN,
-                      SEGMENTS_DIGIT_EIGHT -> true;
+                          SEGMENTS_DIGIT_FOUR,
+                          SEGMENTS_DIGIT_SEVEN,
+                          SEGMENTS_DIGIT_EIGHT ->
+                      true;
                   default -> false;
                 })
         .count();

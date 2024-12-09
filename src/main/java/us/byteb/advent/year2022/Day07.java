@@ -65,20 +65,22 @@ public class Day07 {
 
     for (final Command command : commands) {
       switch (command) {
-        case ChangeDirectory cd -> currentDirectory =
-            switch (cd.target()) {
-              case Root ignored -> root;
-              case Parent ignored -> currentDirectory.parent();
-              case Subdirectory subdirectory -> (Directory)
-                  currentDirectory.child(subdirectory.name()).orElseThrow();
-            };
+        case ChangeDirectory cd ->
+            currentDirectory =
+                switch (cd.target()) {
+                  case Root ignored -> root;
+                  case Parent ignored -> currentDirectory.parent();
+                  case Subdirectory subdirectory ->
+                      (Directory) currentDirectory.child(subdirectory.name()).orElseThrow();
+                };
         case ListContents ls -> {
           for (final FsItemDescription lsResult : ls.result()) {
             switch (lsResult) {
-              case FileDescription file -> currentDirectory.addChild(
-                  new File(file.name(), file.size()));
-              case DirectoryDescription directory -> currentDirectory.addChild(
-                  Directory.directory(directory.name(), currentDirectory));
+              case FileDescription file ->
+                  currentDirectory.addChild(new File(file.name(), file.size()));
+              case DirectoryDescription directory ->
+                  currentDirectory.addChild(
+                      Directory.directory(directory.name(), currentDirectory));
             }
           }
         }

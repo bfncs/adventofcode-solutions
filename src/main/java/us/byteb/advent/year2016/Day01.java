@@ -156,8 +156,8 @@ public class Day01 {
       return switch (input.substring(0, 1).toUpperCase()) {
         case "L" -> LEFT;
         case "R" -> RIGHT;
-        default -> throw new IllegalStateException(
-            "Unable to parse direction from input: " + input);
+        default ->
+            throw new IllegalStateException("Unable to parse direction from input: " + input);
       };
     }
   }

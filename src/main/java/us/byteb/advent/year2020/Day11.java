@@ -50,12 +50,10 @@ public class Day11 {
       final List<List<PositionState>> state, final Position position) {
     return switch (state.get(position.row()).get(position.col())) {
       case FLOOR -> FLOOR;
-      case EMPTY_SEAT -> countOccupiedAdjacentSeats(state, position) == 0
-          ? OCCUPIED_SEAT
-          : EMPTY_SEAT;
-      case OCCUPIED_SEAT -> countOccupiedAdjacentSeats(state, position) >= 4
-          ? EMPTY_SEAT
-          : OCCUPIED_SEAT;
+      case EMPTY_SEAT ->
+          countOccupiedAdjacentSeats(state, position) == 0 ? OCCUPIED_SEAT : EMPTY_SEAT;
+      case OCCUPIED_SEAT ->
+          countOccupiedAdjacentSeats(state, position) >= 4 ? EMPTY_SEAT : OCCUPIED_SEAT;
     };
   }
 
@@ -63,12 +61,10 @@ public class Day11 {
       final List<List<PositionState>> state, final Position position) {
     return switch (state.get(position.row()).get(position.col())) {
       case FLOOR -> FLOOR;
-      case EMPTY_SEAT -> countOccupiedSeatsFirstInEachDirection(state, position) == 0
-          ? OCCUPIED_SEAT
-          : EMPTY_SEAT;
-      case OCCUPIED_SEAT -> countOccupiedSeatsFirstInEachDirection(state, position) >= 5
-          ? EMPTY_SEAT
-          : OCCUPIED_SEAT;
+      case EMPTY_SEAT ->
+          countOccupiedSeatsFirstInEachDirection(state, position) == 0 ? OCCUPIED_SEAT : EMPTY_SEAT;
+      case OCCUPIED_SEAT ->
+          countOccupiedSeatsFirstInEachDirection(state, position) >= 5 ? EMPTY_SEAT : OCCUPIED_SEAT;
     };
   }
 

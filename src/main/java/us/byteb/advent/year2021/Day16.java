@@ -185,10 +185,11 @@ public class Day16 {
       public long evaluate() {
         return switch (type) {
           case SUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).sum();
-          case PRODUCT -> subPackets().stream()
-              .mapToLong(BitsPacket::evaluate)
-              .reduce((a, b) -> a * b)
-              .orElseThrow();
+          case PRODUCT ->
+              subPackets().stream()
+                  .mapToLong(BitsPacket::evaluate)
+                  .reduce((a, b) -> a * b)
+                  .orElseThrow();
           case MINIMUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).min().orElseThrow();
           case MAXIMUM -> subPackets().stream().mapToLong(BitsPacket::evaluate).max().orElseThrow();
           case GREATER_THAN -> subPackets.get(0).evaluate() > subPackets.get(1).evaluate() ? 1 : 0;

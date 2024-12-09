@@ -174,8 +174,8 @@ public class Day12 {
             switch (rotationDeg) {
               case 0 -> position.waypoint();
               case 90 -> new Position(-1 * position.waypoint().posY(), position.waypoint().posX());
-              case 180 -> new Position(
-                  -1 * position.waypoint().posX(), -1 * position.waypoint().posY());
+              case 180 ->
+                  new Position(-1 * position.waypoint().posX(), -1 * position.waypoint().posY());
               case 270 -> new Position(position.waypoint().posY(), -1 * position.waypoint().posX());
               default -> throw new UnsupportedOperationException();
             };
