@@ -47,4 +47,9 @@ class Day09Test {
 
     assertEquals(1928L, checksum(compact(parseInput(EXAMPLE_DATA))));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(2858, checksum(compactWithoutSplitting(parseInput(EXAMPLE_DATA))));
+  }
 }

@@ -10,6 +10,7 @@ public class Day09 {
   public static void main(String[] args) {
     final String input = readFileFromResources("year2024/day09.txt");
     System.out.println("Part 1: " + checksum(compact(parseInput(input))));
+    System.out.println("Part 2: " + checksum(compactWithoutSplitting(parseInput(input))));
   }
 
   public static List<BlockRange> parseInput(final String input) {
@@ -60,18 +61,59 @@ public class Day09 {
     long sum = 0;
     long blockStart = 0;
     for (final BlockRange block : input) {
-      if (!(block.content() instanceof Content.Id(int id))) {
-        continue;
-      }
-
-      for (int i = 0; i < block.length(); i++) {
-        final long res = (blockStart + i) * id;
-        sum += res;
+      if ((block.content() instanceof Content.Id(int id))) {
+        for (int i = 0; i < block.length(); i++) {
+          final long res = (blockStart + i) * id;
+          sum += res;
+        }
       }
       blockStart += block.length();
     }
 
     return sum;
+  }
+
+  public static List<BlockRange> compactWithoutSplitting(final List<BlockRange> input) {
+    final List<BlockRange> result = new ArrayList<>(input);
+    for (int toBeMovedId =
+            ((Content.Id) result.get(findRightmostContentBlockPosition(result)).content()).value();
+        toBeMovedId > 0;
+        toBeMovedId--) {
+      int toBeMovedPos = findContentBlockPosById(result, toBeMovedId);
+      System.out.println("Moving id=" + toBeMovedId);
+
+      for (int i = 0; i < toBeMovedPos; i++) {
+        final BlockRange currentBlock = result.get(i);
+        if (!(currentBlock.content() instanceof Content.Free)) {
+          continue;
+        }
+        final BlockRange toBeMovedBlock = result.get(toBeMovedPos);
+        if (currentBlock.length < toBeMovedBlock.length()) {
+          continue;
+        }
+
+        System.out.println("Moving to pos " + i);
+        result.set(toBeMovedPos, free(toBeMovedBlock.length()));
+        result.remove(i);
+        result.add(i, free(currentBlock.length() - toBeMovedBlock.length()));
+        result.add(i, toBeMovedBlock);
+        break;
+      }
+    }
+    return mergeContiguousFreeBlocks(result);
+  }
+
+  private static int findContentBlockPosById(final List<BlockRange> result, final int toBeMovedId) {
+    for (int i = 0; i < result.size(); i++) {
+      final BlockRange currentBlock = result.get(i);
+      if (!(currentBlock.content() instanceof Content.Id(int value))) {
+        continue;
+      }
+      if (value == toBeMovedId) {
+        return i;
+      }
+    }
+    throw new IllegalStateException();
   }
 
   private static List<BlockRange> mergeContiguousFreeBlocks(final List<BlockRange> input) {
@@ -83,7 +125,7 @@ public class Day09 {
         result.remove(i + 1);
       }
     }
-    return result;
+    return result.stream().filter(block -> block.length() > 0).toList();
   }
 
   private static int findRightmostContentBlockPosition(final List<BlockRange> result) {
