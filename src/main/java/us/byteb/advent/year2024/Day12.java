@@ -3,13 +3,16 @@ package us.byteb.advent.year2024;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.*;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
 public class Day12 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2024/day12.txt");
-    System.out.println("Part 1: " + totalPriceOfFencing(findRegions(input)));
+    final Set<Region> regions = findRegions(input);
+    System.out.println("Part 1: " + totalPrice(regions, Region::priceOfFencing));
+    System.out.println("Part 2: " + totalPrice(regions, Region::discountedPriceOfFencing));
   }
 
   public static Set<Region> findRegions(final String input) {
@@ -61,8 +64,8 @@ public class Day12 {
         new Position(candidate.y, candidate.x - 1), new Position(candidate.y, candidate.x + 1));
   }
 
-  public static long totalPriceOfFencing(final Set<Region> regions) {
-    return regions.stream().mapToLong(Region::priceOfFencing).sum();
+  public static long totalPrice(final Set<Region> regions, final ToLongFunction<Region> strategy) {
+    return regions.stream().mapToLong(strategy).sum();
   }
 
   public record Region(char type, Set<Position> plots) {
@@ -83,6 +86,66 @@ public class Day12 {
 
     long priceOfFencing() {
       return area() * perimeter();
+    }
+
+    long numberOfSides() {
+      int minY = Integer.MAX_VALUE, minX = Integer.MAX_VALUE;
+      int maxY = Integer.MIN_VALUE, maxX = Integer.MIN_VALUE;
+      for (final Position plot : plots) {
+        minY = Math.min(minY, plot.y());
+        minX = Math.min(minX, plot.x());
+        maxY = Math.max(maxY, plot.y());
+        maxX = Math.max(maxX, plot.x());
+      }
+
+      long sides = 0;
+      for (int y = minY; y <= maxY; y++) {
+        int lastMatchingTopX = Integer.MIN_VALUE, lastMatchingBottomX = Integer.MIN_VALUE;
+        for (int x = minX; x <= maxX; x++) {
+          if (!plots.contains(new Position(y, x))) {
+            continue;
+          }
+          if (!plots.contains(new Position(y - 1, x))) {
+            if (lastMatchingTopX < x - 1) {
+              sides++;
+            }
+            lastMatchingTopX = x;
+          }
+          if (!plots.contains(new Position(y + 1, x))) {
+            if (lastMatchingBottomX < x - 1) {
+              sides++;
+            }
+            lastMatchingBottomX = x;
+          }
+        }
+      }
+
+      for (int x = minX; x <= maxX; x++) {
+        int lastMatchingLeftY = Integer.MIN_VALUE, lastMatchingRightY = Integer.MIN_VALUE;
+        for (int y = minY; y <= maxY; y++) {
+          if (!plots.contains(new Position(y, x))) {
+            continue;
+          }
+          if (!plots.contains(new Position(y, x - 1))) {
+            if (lastMatchingLeftY < y - 1) {
+              sides++;
+            }
+            lastMatchingLeftY = y;
+          }
+          if (!plots.contains(new Position(y, x + 1))) {
+            if (lastMatchingRightY < y - 1) {
+              sides++;
+            }
+            lastMatchingRightY = y;
+          }
+        }
+      }
+
+      return sides;
+    }
+
+    long discountedPriceOfFencing() {
+      return area() * numberOfSides();
     }
   }
 

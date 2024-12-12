@@ -27,6 +27,12 @@ class Day12Test {
             new Region('D', p(1, 3)),
             new Region('E', p(3, 0), p(3, 1), p(3, 2))),
         regions);
-    assertEquals(140L, totalPriceOfFencing(regions));
+    assertEquals(140L, totalPrice(regions, Region::priceOfFencing));
+  }
+
+  @Test
+  void partTwoExample() {
+    final Set<Region> regions = findRegions(EXAMPLE1);
+    assertEquals(80L, totalPrice(regions, Region::discountedPriceOfFencing));
   }
 }
