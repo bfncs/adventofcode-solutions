@@ -8,7 +8,9 @@ public class Day11 {
   public static void main(String[] args) {
     final String input = "vzbxkghb";
 
-    System.out.println("Part 1: " + findNextPassword(input));
+    final String part1 = findNextPassword(input);
+    System.out.println("Part 1: " + part1);
+    System.out.println("Part 2: " + findNextPassword(part1));
   }
 
   public static String findNextPassword(final String input) {
