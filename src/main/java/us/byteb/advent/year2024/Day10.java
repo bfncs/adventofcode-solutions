@@ -3,16 +3,36 @@ package us.byteb.advent.year2024;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Day10 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2024/day10.txt");
     System.out.println("Part 1: " + sumOfTrailheadScores(input));
+    System.out.println("Part 2: " + sumOfTrailheadRatings(input));
+  }
+
+  public static long sumOfTrailheadRatings(final String input) {
+    final List<List<Tile>> data = evaluate(input);
+
+    return data.stream()
+        .flatMap(List::stream)
+        .filter(n -> n.height == 0)
+        .mapToLong(tile -> tile.reachableTrailheads().size())
+        .sum();
   }
 
   public static long sumOfTrailheadScores(final String input) {
+    final List<List<Tile>> data = evaluate(input);
+
+    return data.stream()
+        .flatMap(List::stream)
+        .filter(n -> n.height == 0)
+        .mapToLong(tile -> Set.copyOf(tile.reachableTrailheads()).size())
+        .sum();
+  }
+
+  private static List<List<Tile>> evaluate(final String input) {
     final List<List<Tile>> data =
         input
             .lines()
@@ -34,7 +54,7 @@ public class Day10 {
           final Tile currentTile = data.get(y).get(x);
           if (currentTile.height() == currentHeight) {
             if (currentHeight == 9) {
-              currentTile.setReachableTrailheads(Set.of(new Position(y, x)));
+              currentTile.setReachableTrailheads(List.of(new Position(y, x)));
               continue;
             }
 
@@ -44,27 +64,22 @@ public class Day10 {
             if (x > 0) neighbours.add(data.get(y).get(x - 1));
             if (x < data.size() - 1) neighbours.add(data.get(y).get(x + 1));
 
-            final Set<Position> reachableTrailheads =
+            final List<Position> reachableTrailheads =
                 neighbours.stream()
                     .filter(n -> n.height() == currentTile.height() + 1)
                     .flatMap(n -> n.reachableTrailheads().stream())
-                    .collect(Collectors.toSet());
+                    .toList();
             currentTile.setReachableTrailheads(reachableTrailheads);
           }
         }
       }
     }
-
-    return data.stream()
-        .flatMap(List::stream)
-        .filter(n -> n.height == 0)
-        .mapToLong(tile -> tile.reachableTrailheads().size())
-        .sum();
+    return data;
   }
 
   static class Tile {
     private final int height;
-    private Set<Position> reachableTrailheads = Collections.emptySet();
+    private List<Position> reachableTrailheads = Collections.emptyList();
 
     Tile(final int height) {
       this.height = height;
@@ -74,11 +89,11 @@ public class Day10 {
       return height;
     }
 
-    Set<Position> reachableTrailheads() {
+    List<Position> reachableTrailheads() {
       return reachableTrailheads;
     }
 
-    void setReachableTrailheads(final Set<Position> reachableTrailheads) {
+    void setReachableTrailheads(final List<Position> reachableTrailheads) {
       this.reachableTrailheads = reachableTrailheads;
     }
 

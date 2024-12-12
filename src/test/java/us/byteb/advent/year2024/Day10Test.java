@@ -35,4 +35,32 @@ class Day10Test {
                 10456732
                 """));
   }
+
+  @Test
+  void partTwoExample() {
+    assertEquals(
+        3L,
+        sumOfTrailheadRatings(
+            """
+                .....0.
+                ..4321.
+                ..5..2.
+                ..6543.
+                ..7..4.
+                ..8765.
+                ..9....
+                """));
+    assertEquals(
+        13L,
+        sumOfTrailheadRatings(
+            """
+                ..90..9
+                ...1.98
+                ...2..7
+                6543456
+                765.987
+                876....
+                987....
+                """));
+  }
 }
