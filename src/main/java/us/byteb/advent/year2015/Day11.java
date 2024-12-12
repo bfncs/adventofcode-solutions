@@ -69,8 +69,8 @@ public class Day11 {
 
     outer:
     for (int i = 0; i < chars.length - STRAIGHT_LENGTH; i++) {
-      for (int j = 1; j <= STRAIGHT_LENGTH; j++) {
-        if (chars[i + j] != chars[i] + j) {
+      for (int j = 1; j < STRAIGHT_LENGTH; j++) {
+        if (chars[i + j] != (char) (chars[i] + j)) {
           continue outer;
         }
       }
