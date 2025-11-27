@@ -11,7 +11,8 @@ import us.byteb.advent.year2020.Day13.BusIdCandidate.BusId;
 
 class Day13Test {
 
-  final String INPUT = """
+  final String INPUT =
+      """
       939
       7,13,x,x,59,x,31,19
       """;

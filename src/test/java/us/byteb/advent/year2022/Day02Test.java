@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 
 class Day02Test {
 
-  private static final String part1ExampleDate = """
+  private static final String part1ExampleDate =
+      """
       A Y
       B X
       C Z

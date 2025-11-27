@@ -13,7 +13,8 @@ import us.byteb.advent.year2020.Day12.Instruction.Right;
 class Day12Test {
 
   private static final List<Instruction> INSTRUCTIONS =
-      parseInput("""
+      parseInput(
+          """
       F10
       N3
       F7

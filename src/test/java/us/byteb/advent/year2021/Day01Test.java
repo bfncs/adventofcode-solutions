@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 class Day01Test {
 
   private static final List<Long> part1ExampleDate =
-      parseInput("""
+      parseInput(
+          """
 			199
 			200
 			208

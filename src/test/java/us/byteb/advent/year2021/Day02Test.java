@@ -11,7 +11,8 @@ import us.byteb.advent.year2021.Day02.Position;
 class Day02Test {
 
   private static final List<Day02.Command> example1Input =
-      parseInput("""
+      parseInput(
+          """
 			forward 5
 			down 5
 			forward 8
