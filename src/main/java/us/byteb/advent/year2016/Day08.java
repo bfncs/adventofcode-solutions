@@ -11,6 +11,7 @@ public class Day08 {
     final String input = readFileFromResources("year2016/day08.txt");
     final Screen screen = solvePart1(input);
     System.out.println("Part 1: " + screen.activePixels());
+    System.out.println("Part 2:\n" + screen.prettyPrint());
   }
 
   private static Screen solvePart1(final String input) {
@@ -19,7 +20,6 @@ public class Day08 {
     for (final String op : ops) {
       screen.exec(op);
     }
-    // System.out.println(screen.prettyPrint());
     return screen;
   }
 
