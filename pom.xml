@@ -77,11 +77,29 @@
                 </executions>
                 <configuration>
                     <java>
-                        <importOrder />
-                        <removeUnusedImports />
-                        <googleJavaFormat />
+                        <importOrder/>
+                        <removeUnusedImports/>
+                        <googleJavaFormat/>
                     </java>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scaffold-day</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>us.byteb.advent.DayScaffolder</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
