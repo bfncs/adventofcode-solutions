@@ -51,8 +51,8 @@
                 <version>3.10.1</version>
                 <configuration>
                     <release>25</release>
-                    <source>25</source>
-                    <target>25</target>
+                    <source>22</source>
+                    <target>22</target>
                 </configuration>
             </plugin>
             <plugin>
