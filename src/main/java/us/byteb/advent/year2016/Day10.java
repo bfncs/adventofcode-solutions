@@ -14,6 +14,7 @@ public class Day10 {
   public static void main(String[] args) {
     final String input = readFileFromResources("year2016/day10.txt");
     System.out.println("Part 1: " + solvePart1(input));
+    System.out.println("Part 2: " + solvePart2(input));
   }
 
   private static int solvePart1(final String input) {
@@ -24,6 +25,25 @@ public class Day10 {
         .findFirst()
         .orElseThrow()
         .source();
+  }
+
+  private static int solvePart2(final String input) {
+    final Factory factory = new Factory(input);
+    final List<Action> actions = factory.process();
+    Map<Integer, List<Integer>> outputValues = new HashMap<>();
+    for (Action action : actions) {
+      if (action.isLowOutput()) {
+        outputValues
+            .computeIfAbsent(action.lowTarget(), _ -> new ArrayList<>())
+            .add(action.lowValue());
+      }
+      if (action.isHighOutput()) {
+        outputValues
+            .computeIfAbsent(action.highTarget(), k -> new ArrayList<>())
+            .add(action.highValue());
+      }
+    }
+    return outputValues.get(0).get(0) * outputValues.get(1).get(0) * outputValues.get(2).get(0);
   }
 
   static class Factory {
@@ -66,7 +86,15 @@ public class Day10 {
           final Rule rule = rules.get(bot);
           int low = values.get(0) < values.get(1) ? values.get(0) : values.get(1);
           int high = values.get(1) == low ? values.get(0) : values.get(1);
-          actions.add(new Action(bot, low, high));
+          actions.add(
+              new Action(
+                  bot,
+                  rule.isLowOutput(),
+                  rule.isHighOutput(),
+                  rule.lowTarget(),
+                  rule.highTarget(),
+                  low,
+                  high));
 
           if (!rule.isLowOutput()) {
             nextStates.computeIfAbsent(rule.lowTarget(), _ -> new ArrayList<>()).add(low);
@@ -102,5 +130,12 @@ public class Day10 {
     }
   }
 
-  record Action(int source, int lowValue, int highValue) {}
+  record Action(
+      int source,
+      boolean isLowOutput,
+      boolean isHighOutput,
+      int lowTarget,
+      int highTarget,
+      int lowValue,
+      int highValue) {}
 }

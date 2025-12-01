@@ -22,7 +22,10 @@ class Day10Test {
   @Test
   void testPart1() {
     assertEquals(
-        List.of(new Action(2, 2, 5), new Action(1, 2, 3), new Action(0, 3, 5)),
+        List.of(
+            new Action(2, false, false, 1, 0, 2, 5),
+            new Action(1, true, false, 1, 0, 2, 3),
+            new Action(0, true, true, 2, 0, 3, 5)),
         new Factory(INSTRUCTIONS).process());
   }
 }
