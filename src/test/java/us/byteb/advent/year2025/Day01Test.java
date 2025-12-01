@@ -2,6 +2,7 @@ package us.byteb.advent.year2025;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static us.byteb.advent.year2025.Day01.solvePart1;
+import static us.byteb.advent.year2025.Day01.solvePart2;
 
 import org.junit.jupiter.api.*;
 import us.byteb.advent.year2025.Day01.Dial;
@@ -26,5 +27,10 @@ class Day01Test {
   void testPart1() {
     assertEquals(95, new Dial(5).rotate("L10").getValue());
     assertEquals(3, solvePart1(TEST_DOCUMENT));
+  }
+
+  @Test
+  void testPart2() {
+    assertEquals(6, solvePart2(TEST_DOCUMENT));
   }
 }
