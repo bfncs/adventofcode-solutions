@@ -5,20 +5,31 @@ import static us.byteb.advent.Utils.readFileFromResources;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class Day02 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2025/day02.txt");
     System.out.println("Part 1: " + solvePart1(input));
+    System.out.println("Part 2: " + solvePart2(input));
   }
 
   public static BigInteger solvePart1(final String input) {
+    return solve(input, Range::sumInvalidIds1);
+  }
+
+  public static BigInteger solvePart2(final String input) {
+    return solve(input, Range::sumInvalidIds2);
+  }
+
+  private static BigInteger solve(
+      final String input, final Function<Range, BigInteger> countStrategy) {
     final List<Range> ranges = parseInput(input);
 
     BigInteger invalidIdsCount = BigInteger.ZERO;
     for (final Range range : ranges) {
-      invalidIdsCount = invalidIdsCount.add(range.countInvalidIds());
+      invalidIdsCount = invalidIdsCount.add(countStrategy.apply(range));
     }
 
     return invalidIdsCount;
@@ -38,7 +49,8 @@ public class Day02 {
   }
 
   public record Range(BigInteger startInclusive, BigInteger endInclusive) {
-    BigInteger countInvalidIds() {
+
+    BigInteger sumInvalidIds1() {
       BigInteger result = BigInteger.ZERO;
       for (BigInteger i = startInclusive;
           i.compareTo(endInclusive) <= 0;
@@ -50,6 +62,24 @@ public class Day02 {
 
         if (str.substring(0, str.length() / 2).equals(str.substring(str.length() / 2))) {
           result = result.add(i);
+        }
+      }
+      return result;
+    }
+
+    BigInteger sumInvalidIds2() {
+      BigInteger result = BigInteger.ZERO;
+      for (BigInteger i = startInclusive;
+          i.compareTo(endInclusive) <= 0;
+          i = i.add(BigInteger.ONE)) {
+        final String str = i.toString();
+
+        for (int len = 1; len <= (str.length() / 2); len++) {
+          final String repeated = str.substring(0, len).repeat((str.length() / len));
+          if (str.equals(repeated)) {
+            result = result.add(i);
+            break;
+          }
         }
       }
       return result;
