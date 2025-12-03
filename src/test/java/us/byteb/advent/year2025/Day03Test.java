@@ -18,6 +18,11 @@ class Day03Test {
 
   @Test
   void testPart1() {
-    assertEquals(BigInteger.valueOf(357L), totalOutputJoltage(INPUT));
+    assertEquals(BigInteger.valueOf(357L), totalOutputJoltage(INPUT, 2));
+  }
+
+  @Test
+  void testPart2() {
+    assertEquals(BigInteger.valueOf(3121910778619L), totalOutputJoltage(INPUT, 12));
   }
 }
