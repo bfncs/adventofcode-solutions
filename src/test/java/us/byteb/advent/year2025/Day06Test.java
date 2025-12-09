@@ -6,6 +6,7 @@ import static us.byteb.advent.year2025.Day06.parse;
 
 import java.math.BigInteger;
 import org.junit.jupiter.api.*;
+import us.byteb.advent.year2025.Day06.Problem;
 
 class Day06Test {
 
@@ -19,6 +20,12 @@ class Day06Test {
 
   @Test
   void testPart1() {
-    assertEquals(BigInteger.valueOf(4277556L), grandTotal(parse(INPUT)));
+    assertEquals(BigInteger.valueOf(4277556L), grandTotal(parse(INPUT, Problem::fromInputByRow)));
+  }
+
+  @Test
+  void testPart2() {
+    assertEquals(
+        BigInteger.valueOf(3263827L), grandTotal(parse(INPUT, Problem::fromInputByColumn)));
   }
 }

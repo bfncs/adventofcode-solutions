@@ -10,10 +10,12 @@ public class Day06 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2025/day06.txt");
-    System.out.println("Part 1: " + grandTotal(parse(input)));
+    System.out.println("Part 1: " + grandTotal(parse(input, Problem::fromInputByRow)));
+    System.out.println("Part 2: " + grandTotal(parse(input, Problem::fromInputByColumn)));
   }
 
-  static List<Problem> parse(final String input) {
+  static List<Problem> parse(
+      final String input, TriFunction<List<String>, Integer, Integer, Problem> parseStrategy) {
     final List<String> lines = input.lines().toList();
 
     int startColumn = 0;
@@ -24,11 +26,11 @@ public class Day06 {
       }
 
       if (isIsFullColumnOfOnlySpaces(lines, column)) {
-        problems.add(Problem.fromInput(lines, startColumn, column));
+        problems.add(parseStrategy.apply(lines, startColumn, column));
         startColumn = column + 1;
       }
     }
-    problems.add(Problem.fromInput(lines, startColumn, lines.getFirst().length()));
+    problems.add(parseStrategy.apply(lines, startColumn, lines.getFirst().length()));
 
     return problems;
   }
@@ -50,11 +52,36 @@ public class Day06 {
 
   record Problem(List<BigInteger> numbers, Operator op) {
 
-    private static Problem fromInput(
+    static Problem fromInputByRow(
         final List<String> lines, final int startColumn, final int endColumn) {
       final List<BigInteger> numbers = new ArrayList<>();
       for (int row = 0; row < lines.size() - 1; row++) {
         numbers.add(new BigInteger(lines.get(row).substring(startColumn, endColumn).trim()));
+      }
+
+      return new Problem(
+          numbers,
+          Operator.parse(
+              lines
+                  .getLast()
+                  .substring(startColumn, Math.min(endColumn, lines.getLast().length()))
+                  .trim()));
+    }
+
+    static Problem fromInputByColumn(
+        final List<String> lines, final int startColumn, final int endColumn) {
+      final List<BigInteger> numbers = new ArrayList<>();
+      for (int column = endColumn; column >= startColumn; column--) {
+        final StringBuilder sb = new StringBuilder();
+        for (int row = 0; row < lines.size() - 1; row++) {
+          if (lines.get(row).length() > column) {
+            sb.append(lines.get(row).charAt(column));
+          }
+        }
+        final String value = sb.toString().trim();
+        if (!value.isBlank()) {
+          numbers.add(new BigInteger(value));
+        }
       }
 
       return new Problem(
@@ -85,5 +112,10 @@ public class Day06 {
         default -> throw new IllegalStateException("Unexpected value: " + s);
       };
     }
+  }
+
+  @FunctionalInterface
+  interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
   }
 }
