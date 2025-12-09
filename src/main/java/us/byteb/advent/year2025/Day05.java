@@ -3,15 +3,14 @@ package us.byteb.advent.year2025;
 import static us.byteb.advent.Utils.readFileFromResources;
 
 import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Day05 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2025/day05.txt");
     System.out.println("Part 1: " + PuzzleInput.parse(input).findFreshIngredients().size());
+    System.out.println("Part 2: " + PuzzleInput.parse(input).countAllFreshIngredientIds());
   }
 
   record PuzzleInput(Set<Range> ranges, Set<BigInteger> availableIngredients) {
@@ -52,6 +51,32 @@ public class Day05 {
       }
 
       return result;
+    }
+
+    BigInteger countAllFreshIngredientIds() {
+      final List<Range> sorted =
+          ranges.stream().sorted(Comparator.comparing(Range::startInclusive)).toList();
+
+      final List<Range> compacted = new ArrayList<>();
+      BigInteger start = sorted.getFirst().startInclusive();
+      BigInteger end = sorted.getFirst().endInclusive();
+      int i = 1;
+      while (i < sorted.size()) {
+        final Range current = sorted.get(i);
+        if (current.startInclusive().compareTo(end) <= 0) {
+          end = current.endInclusive().max(end);
+        } else {
+          compacted.add(new Range(start, end));
+          start = current.startInclusive();
+          end = current.endInclusive();
+        }
+        i++;
+      }
+      compacted.add(new Range(start, end));
+
+      return compacted.stream()
+          .map(r -> r.endInclusive().subtract(r.startInclusive()).add(BigInteger.ONE))
+          .reduce(BigInteger.ZERO, BigInteger::add);
     }
   }
 

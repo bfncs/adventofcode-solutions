@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigInteger;
 import java.util.Set;
 import org.junit.jupiter.api.*;
+import us.byteb.advent.year2025.Day05.PuzzleInput;
 
 class Day05Test {
 
@@ -27,6 +28,11 @@ class Day05Test {
   void testPart1() {
     assertEquals(
         Set.of(new BigInteger("5"), new BigInteger("11"), new BigInteger("17")),
-        Day05.PuzzleInput.parse(INPUT).findFreshIngredients());
+        PuzzleInput.parse(INPUT).findFreshIngredients());
+  }
+
+  @Test
+  void testPart2() {
+    assertEquals(new BigInteger("14"), PuzzleInput.parse(INPUT).countAllFreshIngredientIds());
   }
 }
