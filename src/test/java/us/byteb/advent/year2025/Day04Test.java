@@ -42,4 +42,9 @@ class Day04Test {
             new Point(9, 8)),
         Grid.parse(INPUT).findAccessiblePoints());
   }
+
+  @Test
+  void testPart2() {
+    assertEquals(43, Day04.removeAccessibleRollsRepeatedly(Grid.parse(INPUT)).size());
+  }
 }

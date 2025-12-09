@@ -10,7 +10,23 @@ public class Day04 {
 
   public static void main(String[] args) {
     final String input = readFileFromResources("year2025/day04.txt");
-    System.out.println("Part 1: " + Grid.parse(input).findAccessiblePoints().size());
+    final Grid grid = Grid.parse(input);
+    System.out.println("Part 1: " + grid.findAccessiblePoints().size());
+    System.out.println("Part 2: " + removeAccessibleRollsRepeatedly(grid).size());
+  }
+
+  static Set<Point> removeAccessibleRollsRepeatedly(final Grid grid) {
+    final Set<Point> points = new HashSet<>();
+
+    Set<Point> found;
+    Grid current = grid;
+    do {
+      found = current.findAccessiblePoints();
+      points.addAll(found);
+      current = current.withoutPoints(found);
+    } while (!found.isEmpty());
+
+    return points;
   }
 
   record Grid(boolean[][] data) {
@@ -58,6 +74,16 @@ public class Day04 {
         }
       }
       return true;
+    }
+
+    Grid withoutPoints(final Set<Point> accessiblePoints) {
+      boolean[][] newData = new boolean[data.length][data[0].length];
+      for (int y = 0; y < data.length; y++) {
+        for (int x = 0; x < data[0].length; x++) {
+          newData[y][x] = !accessiblePoints.contains(new Point(y, x)) && data[y][x];
+        }
+      }
+      return new Grid(newData);
     }
   }
 
